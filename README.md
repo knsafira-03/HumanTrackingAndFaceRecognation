@@ -225,13 +225,47 @@ Karena sistem dikembangkan untuk lingkungan **Divisi Persandian Diskominfo**, be
 
 # 👥 Development Team
 
-Praktik Kerja Lapangan
+| Nama                   | Posisi                                | Tanggung Jawab                                                                                                     |
+| ---------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Khalisa Nur Safira** | Project Manager & System Analyst      | Mengelola proyek, analisis kebutuhan, desain sistem, koordinasi tim, dokumentasi, dan integrasi sistem.            |
+| **Dayinta Raras Apsari**     | AI & Computer Vision Engineer         | Mengembangkan Human Detection, Object Tracking, Face Recognition (opsional), serta optimasi model AI.              |
+| **NAqilah Akma**     | Backend & System Integration Engineer | Mengembangkan database, dashboard monitoring, integrasi CCTV, notifikasi WhatsApp/Telegram, dan deployment sistem. |
 
-Teknik Komputer
+**Institution**
 
-Universitas Brawijaya
+* Universitas Brawijaya
+* Program Studi Teknik Komputer
+* Praktik Kerja Lapangan (PKL)
+* Dinas Komunikasi dan Informatika (Diskominfo)
+* Divisi Persandian
 
-Diskominfo – Divisi Persandian
+---
+
+### 👨‍💻 Role Description
+
+**Project Manager & System Analyst**
+
+* Menyusun requirement sistem.
+* Menyusun timeline dan pembagian tugas.
+* Mendesain arsitektur sistem.
+* Mengoordinasikan pengembangan proyek.
+* Menyusun dokumentasi teknis dan laporan PKL.
+
+**AI & Computer Vision Engineer**
+
+* Implementasi Human Detection menggunakan YOLO.
+* Implementasi Object Tracking.
+* Pengembangan Entry & Exit Detection.
+* Pengembangan Face Recognition (opsional).
+* Pengujian performa model AI.
+
+**Backend & System Integration Engineer**
+
+* Mendesain database.
+* Mengembangkan Dashboard Monitoring.
+* Mengintegrasikan CCTV dengan sistem.
+* Mengembangkan modul notifikasi WhatsApp/Telegram.
+* Melakukan integrasi seluruh komponen sistem.
 
 ---
 
