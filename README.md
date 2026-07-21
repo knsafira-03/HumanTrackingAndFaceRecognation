@@ -1,6 +1,4 @@
-# HumanTrackingAndFaceRecognation
-
-# Smart Secure Room Monitoring System
+# Human Tracking And Face Recognation - Smart Secure Room Monitoring System
 
 > PKL Project - Diskominfo (Divisi Persandian)
 
