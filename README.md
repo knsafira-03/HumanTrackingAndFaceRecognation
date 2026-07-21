@@ -229,7 +229,7 @@ Karena sistem dikembangkan untuk lingkungan **Divisi Persandian Diskominfo**, be
 | ---------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | **Khalisa Nur Safira** | Project Manager & System Analyst      | Mengelola proyek, analisis kebutuhan, desain sistem, koordinasi tim, dokumentasi, dan integrasi sistem.            |
 | **Dayinta Raras Apsari**     | AI & Computer Vision Engineer         | Mengembangkan Human Detection, Object Tracking, Face Recognition (opsional), serta optimasi model AI.              |
-| **NAqilah Akma**     | Backend & System Integration Engineer | Mengembangkan database, dashboard monitoring, integrasi CCTV, notifikasi WhatsApp/Telegram, dan deployment sistem. |
+| **Aqilah Akma**     | Backend & System Integration Engineer | Mengembangkan database, dashboard monitoring, integrasi CCTV, notifikasi WhatsApp/Telegram, dan deployment sistem. |
 
 **Institution**
 
