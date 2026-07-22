@@ -24,3 +24,9 @@ datasets/videos/
 # OS
 Thumbs.db
 .DS_Store
+
+# Attendance
+attendance*.csv
+
+# Python Environment
+.env
