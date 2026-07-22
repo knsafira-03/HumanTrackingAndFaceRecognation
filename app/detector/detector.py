@@ -27,6 +27,19 @@ class PersonDetector:
 
         return self.cap.read()
 
+    def track(self, frame, confidence, person_class, tracker):
+
+        results = self.model.track(
+            frame,
+            persist=True,
+            tracker=tracker,
+            classes=[person_class],
+            conf=confidence,
+            verbose=False
+        )
+
+        return results
+
     def show_frame(self, frame, window_name):
 
         cv2.imshow(window_name, frame)
