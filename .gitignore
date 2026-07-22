@@ -1,0 +1,26 @@
+# Virtual Environment
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# VSCode
+.vscode/
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+logs/
+
+# Snapshots
+snapshots/
+
+# Dataset
+datasets/videos/
+
+# OS
+Thumbs.db
+.DS_Store
