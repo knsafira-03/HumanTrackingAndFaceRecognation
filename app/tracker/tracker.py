@@ -1,18 +1,18 @@
 class PersonTracker:
 
-    def __init__(self):
+    def __init__(self, detector):
 
-        self.tracker_name = "bytetrack.yaml"
+        self.detector = detector
 
-    def track(self,
-              detector,
-              frame):
+    def track(self, frame, confidence, person_class, tracker):
 
-        return detector.model.track(
+        results = self.detector.model.track(
             frame,
             persist=True,
-            tracker=self.tracker_name,
-            classes=[0],
-            conf=0.35,
+            tracker=tracker,
+            classes=[person_class],
+            conf=confidence,
             verbose=False
         )
+
+        return results

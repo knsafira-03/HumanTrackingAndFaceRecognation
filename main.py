@@ -1,4 +1,5 @@
 from app.detector.detector import PersonDetector
+from app.tracker.tracker import PersonTracker
 from config import *
 
 
@@ -10,6 +11,7 @@ def main():
     print("====================================")
 
     detector = PersonDetector(YOLO_MODEL)
+    tracker = PersonTracker(detector)
 
     detector.open_camera(CAMERA_INDEX)
 
@@ -28,11 +30,18 @@ def main():
 
         for result in results:
 
-            for box in result.boxes:
+            if result.boxes.id is None:
+                continue
 
-                x1, y1, x2, y2 = map(int, box.xyxy[0])
+            boxes = result.boxes.xyxy.cpu().numpy()
 
-                conf = float(box.conf[0])
+            ids = result.boxes.id.int().cpu().numpy()
+
+            confs = result.boxes.conf.cpu().numpy()
+
+            for box, track_id, conf in zip(boxes, ids, confs):
+
+                x1, y1, x2, y2 = map(int, box)
 
                 person_count += 1
 
@@ -46,13 +55,14 @@ def main():
 
                 cv2.putText(
                     frame,
-                    f"Person {conf:.2f}",
+                    f"ID {track_id}",
                     (x1, y1-10),
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    0.6,
+                    0.7,
                     (0,255,0),
                     2
                 )
+                
         cv2.rectangle(
             frame,
             (10,10),
