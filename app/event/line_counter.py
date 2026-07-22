@@ -39,37 +39,39 @@ class LineCounter:
 
     def update(self, track_id, current_side):
 
-        # Abaikan jika tepat di garis
         if current_side == 0:
-            return
+            return None
 
-        # ID baru
         if track_id not in self.tracker_state:
 
             self.tracker_state[track_id] = {
-                "side": current_side,
-                "counted": False
+                "side": current_side
             }
 
-            return
+            return None
 
         previous_side = self.tracker_state[track_id]["side"]
 
-        # Tidak ada perubahan sisi
         if previous_side == current_side:
-            return
+            return None
+
+        event = None
 
         if previous_side == 1 and current_side == -1:
 
             self.in_count += 1
+            event = "MASUK"
 
             print(f"[EVENT] ID {track_id} -> MASUK")
 
         elif previous_side == -1 and current_side == 1:
 
             self.out_count += 1
+            event = "KELUAR"
 
             print(f"[EVENT] ID {track_id} -> KELUAR")
 
-        # Update sisi terakhir
+        # SELALU update side setelah diproses
         self.tracker_state[track_id]["side"] = current_side
+
+        return event

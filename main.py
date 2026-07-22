@@ -1,6 +1,8 @@
 from app.detector.detector import PersonDetector
 from app.tracker.tracker import PersonTracker
 from app.event.line_counter import LineCounter
+from app.database.database import Database
+from app.database.attendance import Attendance
 from config import *
 
 
@@ -14,6 +16,8 @@ def main():
     detector = PersonDetector(YOLO_MODEL)
     tracker = PersonTracker(detector)
     line_counter = LineCounter()
+    database = Database()
+    attendance = Attendance(database)
 
     detector.open_camera(CAMERA_INDEX)
 
@@ -52,10 +56,16 @@ def main():
                     (foot_x, foot_y)
                 )
 
-                line_counter.update(
+                event = line_counter.update(
                     track_id,
                     current_side
                 )
+
+                if event is not None:
+                    attendance.save_event(
+                        track_id=track_id,
+                        event=event
+                    )
 
                 person_count += 1
 
