@@ -30,3 +30,5 @@ attendance*.csv
 
 # Python Environment
 .env
+
+config/settings.py

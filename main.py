@@ -1,5 +1,6 @@
 import cv2
 import time
+import os
 
 from app.detector.detector import PersonDetector
 from app.tracker.tracker import PersonTracker
@@ -11,12 +12,13 @@ from app.database.attendance import Attendance
 from app.services.recognition_service import RecognitionService
 
 from app.snapshot.snapshot_service import SnapshotService
+from app.notification.notification_manager import NotificationManager
 
 # from app.recognition.face_database import FaceDatabase
 # from app.recognition.face_recognizer import FaceRecognizer
 # from app.recognition.track_registry import TrackRegistry
 
-from config import *
+from app_config import *
 
 
 def main():
@@ -40,6 +42,7 @@ def main():
 
     recognition_service = RecognitionService()
     snapshot_service = SnapshotService()
+    notification = NotificationManager()
 
     # face_recognizer = FaceRecognizer()
 
@@ -61,6 +64,8 @@ def main():
     # MAIN LOOP
     # ==========================================
     prev_time = time.time()
+
+    last_preview_save = 0
 
     while True:
 
@@ -149,6 +154,19 @@ def main():
                         track_id=track_id,
                         direction=event,
                         name=name,
+                        snapshot_path=snapshot_path
+                    )
+
+                    status = (
+                        "UNAUTHORIZED"      
+                        if name == "Unknown"
+                        else "AUTHORIZED"
+                    )
+
+                    notification.send_event(
+                        name=name,
+                        status=status,
+                        direction=event,
                         snapshot_path=snapshot_path
                     )
 
@@ -243,6 +261,21 @@ def main():
             (255,255,255),
             2
         )
+
+        # ==========================================
+        # LIVE PREVIEW
+        # ==========================================
+
+        if time.time() - last_preview_save > 0.5:
+
+            os.makedirs("static", exist_ok=True)
+
+            cv2.imwrite(
+                "static/live.jpg",
+                frame
+            )
+
+            last_preview_save = time.time()
 
         detector.show_frame(
             frame,

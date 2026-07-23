@@ -255,7 +255,7 @@ with tab1:
                     row = recent_logs.iloc[idx + i]
                     with col:
                         with st.container():
-                            i_col, t_col = st.columns([1, 3])
+                            i_col, t_col = st.columns([1, 2])
                             with i_col:
                                 photo_path = row["Foto"]
 
@@ -271,7 +271,7 @@ with tab1:
 
                                         st.image(
                                             str(photo_path),
-                                            # use_container_width=False,
+                                            use_container_width=False,
                                             width=180
                                         )
 

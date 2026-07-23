@@ -6,7 +6,7 @@ from app.recognition.face_recognizer import FaceRecognizer
 from app.recognition.track_registry import TrackRegistry
 from app.recognition.face_database import FaceDatabase
 
-from config import *
+from app_config import *
 
 
 class RecognitionService:
