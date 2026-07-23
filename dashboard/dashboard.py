@@ -5,6 +5,7 @@ import plotly.express as px
 from PIL import Image
 import os
 import sys
+from pathlib import Path
 
 # --- OTOMATIS ME-REFRESH HALAMAN TIAP 2 DETIK (REAL-TIME) ---
 try:
@@ -14,13 +15,11 @@ except ImportError:
     pass  # Jika library belum terinstall, sistem tetap berjalan manual
 
 # --- MENGHUBUNGKAN KE CONFIG DATABASE ---
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-try:
-    from config.settings import DATABASE_PATH
-except ImportError:
-    # Path cadangan jika config/settings.py gagal dimuat
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    DATABASE_PATH = os.path.join(BASE_DIR, "database", "database.db")
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+
+DATABASE_PATH = BASE_DIR / "database.db"
 
 # --- CONFIG HALAMAN ---
 st.set_page_config(
@@ -132,10 +131,18 @@ def get_access_logs():
     try:
         conn = sqlite3.connect(DATABASE_PATH)
         query = """
-            SELECT id AS ID, timestamp AS Waktu, track_id AS Track_ID, name AS Nama, 
-                   status AS Status, direction AS Arah, snapshot_path AS Foto
-            FROM access_logs ORDER BY id DESC
+        SELECT
+            id AS ID,
+            timestamp AS Waktu,
+            track_id AS Track_ID,
+            name AS Nama,
+            status AS Status,
+            direction AS Arah,
+            snapshot_path AS Foto
+        FROM attendance
+        ORDER BY id DESC
         """
+
         df = pd.read_sql_query(query, conn)
         conn.close()
         return df
@@ -248,11 +255,32 @@ with tab1:
                     row = recent_logs.iloc[idx + i]
                     with col:
                         with st.container():
-                            i_col, t_col = st.columns([1, 2])
+                            i_col, t_col = st.columns([1, 3])
                             with i_col:
-                                if os.path.exists(row['Foto']):
-                                    st.image(Image.open(row['Foto']), use_column_width=True)
+                                photo_path = row["Foto"]
+
+                                if photo_path:
+
+                                    # Ubah path relatif menjadi path absolut
+                                    photo_path = (
+                                        Path(__file__).resolve().parents[1]
+                                        / photo_path
+                                    )
+
+                                    if photo_path.exists():
+
+                                        st.image(
+                                            str(photo_path),
+                                            # use_container_width=False,
+                                            width=180
+                                        )
+
+                                    else:
+
+                                        st.caption("📷 Foto Tidak Tersedia")
+
                                 else:
+
                                     st.caption("📷 Foto Tidak Tersedia")
                             with t_col:
                                 if row['Status'] == 'AUTHORIZED':
