@@ -1,7 +1,6 @@
 # mengelola koneksi SQLite dan membuat tabel
 
 import sqlite3
-import os
 
 
 class Database:
@@ -22,19 +21,61 @@ class Database:
 
         cursor = conn.cursor()
 
+        # =====================================
+        # Attendance
+        # =====================================
+
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS attendance (
+        CREATE TABLE IF NOT EXISTS attendance (
 
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-                timestamp TEXT NOT NULL,
+            timestamp TEXT NOT NULL,
 
-                track_id INTEGER NOT NULL,
+            track_id INTEGER NOT NULL,
 
-                name TEXT,
+            name TEXT,
 
-                event TEXT NOT NULL
-            )
+            status TEXT,
+
+            direction TEXT,
+
+            snapshot_path TEXT
+        )
+        """)
+
+        # =====================================
+        # Room Occupancy
+        # =====================================
+
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS room_occupancy (
+
+            id INTEGER PRIMARY KEY,
+
+            current_occupancy INTEGER DEFAULT 0,
+
+            total_in_today INTEGER DEFAULT 0,
+
+            total_out_today INTEGER DEFAULT 0
+        )
+        """)
+
+        cursor.execute("""
+        INSERT OR IGNORE INTO room_occupancy
+        (
+            id,
+            current_occupancy,
+            total_in_today,
+            total_out_today
+        )
+        VALUES
+        (
+            1,
+            0,
+            0,
+            0
+        )
         """)
 
         conn.commit()

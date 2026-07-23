@@ -10,6 +10,8 @@ from app.database.attendance import Attendance
 
 from app.services.recognition_service import RecognitionService
 
+from app.snapshot.snapshot_service import SnapshotService
+
 # from app.recognition.face_database import FaceDatabase
 # from app.recognition.face_recognizer import FaceRecognizer
 # from app.recognition.track_registry import TrackRegistry
@@ -37,6 +39,7 @@ def main():
     attendance = Attendance(database)
 
     recognition_service = RecognitionService()
+    snapshot_service = SnapshotService()
 
     # face_recognizer = FaceRecognizer()
 
@@ -123,11 +126,30 @@ def main():
                 )
 
                 if event is not None:
+                    h, w = frame.shape[:2]
+
+                    x1 = max(0, x1)
+                    y1 = max(0, y1)
+
+                    x2 = min(w, x2)
+                    y2 = min(h, y2)
+
+                    person_crop = frame[
+                        y1:y2,
+                        x1:x2
+                    ]
+
+                    snapshot_path = snapshot_service.save(
+                        person_crop,
+                        name,
+                        event
+                    )
 
                     attendance.save_event(
                         track_id=track_id,
+                        direction=event,
                         name=name,
-                        event=event
+                        snapshot_path=snapshot_path
                     )
 
                 person_count += 1

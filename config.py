@@ -35,3 +35,9 @@ TRACKER = "config/bytetrack.yaml"
 # ==========================================
 
 WINDOW_NAME = "Human Monitoring System"
+
+# ==========================================
+# DEBUG
+# ==========================================
+
+DEBUG = False

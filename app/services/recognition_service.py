@@ -38,15 +38,7 @@ class RecognitionService:
         person_box,
         track_id
     ):
-
-        # Kalau track sudah pernah dikenali,
-        # langsung gunakan hasil sebelumnya.
-        if self.registry.has(track_id):
-
-            current_name = self.registry.get_name(track_id)
-
-            if current_name != "Unknown":
-                return current_name
+        print(f"[TRACK] {track_id}")
 
         face_results = self.face_detector.detect(
             frame,
@@ -89,7 +81,7 @@ class RecognitionService:
                     self.known_faces
                 )
 
-                self.registry.add(
+                self.registry.update(
                     track_id,
                     name,
                     score
@@ -103,5 +95,11 @@ class RecognitionService:
                 )
 
                 return name
+
+        self.registry.update(
+            track_id,
+            "Unknown",
+            999
+        )
 
         return "Unknown"
