@@ -3,3 +3,7 @@ numpy
 ultralytics
 torch
 torchvision
+streamlit
+plotly
+pandas
+altair

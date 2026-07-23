@@ -1,4 +1,5 @@
 import cv2
+import time
 
 from app.detector.detector import PersonDetector
 from app.tracker.tracker import PersonTracker
@@ -56,6 +57,7 @@ def main():
     # ==========================================
     # MAIN LOOP
     # ==========================================
+    prev_time = time.time()
 
     while True:
 
@@ -92,6 +94,12 @@ def main():
                 # ==================================
                 # TRACK REGISTRY
                 # ==================================
+                print(
+                    f"[TRACK] "
+                    f"{track_id} "
+                    f"({x1},{y1})"
+                )
+                
                 name = recognition_service.recognize(
                     frame,
                     (x1, y1, x2, y2),
@@ -138,7 +146,7 @@ def main():
 
                 cv2.putText(
                     frame,
-                    f"{name} | ID {track_id}",
+                    f"{name} | ID {track_id} | {conf:.2f}",
                     (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.7,
@@ -198,6 +206,20 @@ def main():
             line_counter.line_p2,
             (255, 0, 0),
             3
+        )
+
+        current_time = time.time()
+        fps = 1 / (current_time - prev_time)
+        prev_time = current_time
+
+        cv2.putText(
+            frame,
+            f"FPS : {fps:.1f}",
+            (20, 130),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.7,
+            (255,255,255),
+            2
         )
 
         detector.show_frame(

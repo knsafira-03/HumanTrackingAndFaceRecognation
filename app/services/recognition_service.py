@@ -43,7 +43,10 @@ class RecognitionService:
         # langsung gunakan hasil sebelumnya.
         if self.registry.has(track_id):
 
-            return self.registry.get_name(track_id)
+            current_name = self.registry.get_name(track_id)
+
+            if current_name != "Unknown":
+                return current_name
 
         face_results = self.face_detector.detect(
             frame,
@@ -65,6 +68,13 @@ class RecognitionService:
                     continue
 
                 fx1, fy1, fx2, fy2 = face_box
+
+                h, w = frame.shape[:2]
+
+                fx1 = max(0, fx1)
+                fy1 = max(0, fy1)
+                fx2 = min(w, fx2)
+                fy2 = min(h, fy2)
 
                 face_crop = frame[
                     fy1:fy2,

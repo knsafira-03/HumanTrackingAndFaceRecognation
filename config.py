@@ -28,7 +28,7 @@ FACE_CONFIDENCE = 0.5
 # TRACKER
 # ==========================================
 
-TRACKER = "bytetrack.yaml"
+TRACKER = "config/bytetrack.yaml"
 
 # ==========================================
 # DISPLAY
