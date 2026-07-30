@@ -21,13 +21,119 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 
 DATABASE_PATH = BASE_DIR / "database.db"
 
+st.markdown("""
+<style>
+
+/* ===========================
+   GLOBAL
+=========================== */
+
+.main {
+    background-color: #F6F8FB;
+}
+
+/* ===========================
+   CARD
+=========================== */
+
+div[data-testid="stVerticalBlockBorderWrapper"]{
+
+    background: white;
+
+    border-radius:18px;
+
+    border:1px solid #E9ECEF;
+
+    padding:15px;
+
+    box-shadow:0 4px 15px rgba(0,0,0,.06);
+
+    transition:0.2s;
+}
+
+/* Hover */
+
+div[data-testid="stVerticalBlockBorderWrapper"]:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 8px 24px rgba(0,0,0,.10);
+
+}
+
+/* ===========================
+   IMAGE
+=========================== */
+
+img{
+
+    border-radius:12px;
+
+}
+
+/* ===========================
+   SUCCESS BOX
+=========================== */
+
+div[data-testid="stAlert"]{
+
+    border-radius:12px;
+
+}
+
+/* ===========================
+   BUTTON
+=========================== */
+
+.stButton>button{
+
+    border-radius:12px;
+
+    font-weight:600;
+
+}
+
+/* ===========================
+   METRIC
+=========================== */
+
+div[data-testid="metric-container"]{
+
+    border-radius:18px;
+
+    border:1px solid #E8EEF5;
+
+    padding:15px;
+
+    box-shadow:0 3px 10px rgba(0,0,0,.05);
+
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 # --- CONFIG HALAMAN ---
-st.set_page_config(
-    page_title="Smart Server Room — Command Center",
-    page_icon="🛡️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+st.markdown("""
+<div style="
+padding:20px;
+background:linear-gradient(135deg,#0F172A,#1E3A8A);
+border-radius:18px;
+color:white;
+margin-bottom:25px;
+">
+
+<h1 style="margin:0;">
+🛡️ Smart Server Room Monitoring
+</h1>
+
+<p style="margin-top:8px;
+font-size:18px;
+color:#D1D5DB;">
+Real-Time AI Security Monitoring System
+</p>
+
+</div>
+""", unsafe_allow_html=True)
 
 # --- CUSTOM CSS UI ENHANCEMENT (PALETTE PASTEL) ---
 st.markdown("""
@@ -88,7 +194,7 @@ st.markdown("""
         }
 
         /* Styling Judul & Sidebar Teks */
-        h1, h2, h3, h4 {
+        h2, h3, h4 {
             color: #2D3748 !important;
         }
         
@@ -153,7 +259,7 @@ def get_access_logs():
 with st.sidebar:
     st.image("https://img.icons8.com/isometric-line/100/data-protection.png", width=65)
     st.title("Command Center")
-    st.caption("v1.0.0 — Diskominfotik")
+    st.caption("v1.0.0 — Diskominfo Kota Probolinggo")
     st.divider()
     
     st.subheader("🔍 Filter Data")
@@ -244,55 +350,67 @@ tab1, tab2, tab3, tab4 = st.tabs([
 
 # ================= TAB 1: LIVE ACTIVITY FEED =================
 with tab1:
+
     st.subheader("📸 Aktivitas Melintas Terbaru")
-    
+
     if not filtered_df.empty:
+
         recent_logs = filtered_df.head(6)
-        for idx in range(0, len(recent_logs), 2):
-            cols = st.columns(2)
-            for i, col in enumerate(cols):
-                if idx + i < len(recent_logs):
-                    row = recent_logs.iloc[idx + i]
-                    with col:
-                        with st.container():
-                            i_col, t_col = st.columns([1, 2])
-                            with i_col:
-                                photo_path = row["Foto"]
 
-                                if photo_path:
+        for _, row in recent_logs.iterrows():
 
-                                    # Ubah path relatif menjadi path absolut
-                                    photo_path = (
-                                        Path(__file__).resolve().parents[1]
-                                        / photo_path
-                                    )
+            with st.container(border=True):
 
-                                    if photo_path.exists():
+                img_col, info_col = st.columns([1,3])
 
-                                        st.image(
-                                            str(photo_path),
-                                            use_container_width=False,
-                                            width=180
-                                        )
+                with img_col:
 
-                                    else:
+                    photo_path = row["Foto"]
 
-                                        st.caption("📷 Foto Tidak Tersedia")
+                    if photo_path:
 
-                                else:
+                        photo_path = (
+                            Path(__file__).resolve().parents[1]
+                            / photo_path
+                        )
 
-                                    st.caption("📷 Foto Tidak Tersedia")
-                            with t_col:
-                                if row['Status'] == 'AUTHORIZED':
-                                    st.success(f"🟢 **{row['Nama']}**")
-                                else:
-                                    st.error(f"🚨 **{row['Nama']} (UNAUTHORIZED)**")
-                                
-                                st.markdown(f"**Arah:** `{row['Arah']}`")
-                                st.markdown(f"**Waktu:** {row['Waktu']}")
-                                st.caption(f"Track ID: #{row['Track_ID']}")
-                        st.markdown("---")
+                        if photo_path.exists():
+
+                            st.image(
+                                str(photo_path),
+                                width=170
+                            )
+
+                        else:
+
+                            st.caption("📷 Foto Tidak Tersedia")
+
+                    else:
+
+                        st.caption("📷 Foto Tidak Tersedia")
+
+                with info_col:
+
+                    if row["Status"] == "AUTHORIZED":
+
+                        st.success(f"🟢 {row['Nama']}")
+
+                    else:
+
+                        st.error(f"🚨 {row['Nama']} (UNAUTHORIZED)")
+
+                    st.markdown(f"### 👤 {row['Nama']}")
+
+                    st.markdown(f"**📍 Arah :** {row['Arah']}")
+
+                    st.markdown(f"**🕒 Waktu :** {row['Waktu']}")
+
+                    st.markdown(f"**🆔 Track ID :** {row['Track_ID']}")
+
+            st.write("")
+
     else:
+
         st.info("Belum ada aktivitas melintas.")
 
 # ================= TAB 2: ANALYTICS & CHARTS =================

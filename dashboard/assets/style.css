@@ -1,0 +1,710 @@
+/* ==========================================================
+   GOOGLE FONT
+========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+
+/* ==========================================================
+   ROOT COLOR
+========================================================== */
+
+:root{
+
+    --primary:#00458E;
+    --secondary:#0093DD;
+    --accent:#28166F;
+
+    --success:#16A34A;
+    --danger:#DC2626;
+
+    --background:#F4F8FC;
+    --card:#FFFFFF;
+
+    --text:#1F2937;
+    --text-light:#64748B;
+
+}
+
+
+/* ==========================================================
+   GLOBAL
+========================================================== */
+
+html,
+body,
+[class*="css"]{
+
+    font-family:"Poppins",sans-serif;
+
+}
+
+.stApp{
+
+    background:var(--background);
+
+}
+
+
+/* Hide Streamlit */
+
+#MainMenu{
+
+    visibility:hidden;
+
+}
+
+header{
+
+    background:transparent !important;
+
+    height:0 !important;
+
+}
+
+header [data-testid="stToolbar"]{
+
+    background:transparent !important;
+
+}
+
+header [data-testid="stDecoration"]{
+
+    display:none;
+
+}
+
+[data-testid="stHeader"]{
+
+    background:transparent !important;
+
+    border:none !important;
+
+}
+
+footer{
+
+    visibility:hidden;
+
+}
+
+
+/* ==========================================================
+   IMAGE
+========================================================== */
+
+img{
+
+    border-radius:18px;
+
+    object-fit:cover;
+
+}
+
+
+/* ==========================================================
+   CONTAINER
+========================================================== */
+
+.block-container{
+
+    padding-top:2rem;
+
+    padding-bottom:2rem;
+
+}
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.dashboard-title{
+
+    font-size:42px;
+
+    font-weight:800;
+
+    color:var(--text);
+
+    margin-bottom:6px;
+
+}
+
+.dashboard-sub{
+
+    color:var(--text-light);
+
+    font-size:18px;
+
+}
+
+.status-online{
+
+    background:#DCFCE7;
+
+    color:#166534;
+
+    padding:14px 20px;
+
+    border-radius:14px;
+
+    font-weight:700;
+
+    text-align:center;
+
+}
+
+/* ==========================================
+METRIC CARD
+========================================== */
+
+.metric-card{
+
+    background:#FFFFFF;
+
+    border:1px solid #EEF2F7;
+
+    border-radius:18px;
+
+    padding:24px;
+
+    text-align:center;
+
+    box-shadow:0 8px 24px rgba(15,23,42,.06);
+
+    transition:all .25s ease;
+
+}
+
+.metric-card:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:0 18px 36px rgba(15,23,42,.10);
+
+}
+
+.metric-circle{
+
+    width:52px;
+
+    height:52px;
+
+    border-radius:16px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    margin:auto;
+
+    color:white;
+
+    font-size:24px;
+
+    margin-bottom:18px;
+
+}
+
+.metric-title{
+
+    color:#64748B;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    letter-spacing:.5px;
+
+    text-transform:uppercase;
+
+}
+
+.metric-value{
+
+    font-size:42px;
+
+    font-weight:800;
+
+    color:#0F172A;
+
+    margin:10px 0 6px;
+
+    line-height:1;
+
+}
+
+.metric-footer{
+
+    color:#94A3B8;
+
+    font-size:14px;
+
+    font-weight:500;
+
+}
+
+.metric-header{
+    color:#64748B;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+}
+
+.metric-number{
+    font-size:48px;
+    font-weight:800;
+    color:#0F172A;
+    margin:10px 0 6px;
+    line-height:1;
+}
+
+/* ==========================================
+BADGE
+========================================== */
+
+.badge-success{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:max-content;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    background:#DCFCE7;
+
+    color:#166534;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:.4px;
+
+}
+
+.badge-danger{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:max-content;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    background:#FEE2E2;
+
+    color:#991B1B;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:.4px;
+
+}
+
+/* ==========================================
+ACTIVITY IMAGE
+========================================== */
+
+[data-testid="stImage"] img{
+
+    width:200px !important;
+
+    height:200px !important;
+
+    object-fit:cover;
+
+    border-radius:18px;
+
+    border:2px solid #EEF2F7;
+
+}
+
+[data-testid="column"]{
+
+    display:flex;
+
+    align-items:flex-start;
+
+}
+
+.stApp{
+
+    background:#F6F8FC;
+
+}
+
+/* ==========================================
+LIVE ACTIVITY
+========================================== */
+
+.activity-card{
+
+    background:#FFFFFF;
+
+    border-radius:20px;
+
+    padding:18px 22px;
+
+    min-height:180px;
+
+    border:1px solid #EEF2F7;
+
+    box-shadow:0 8px 24px rgba(15,23,42,.06);
+
+    transition:all .25s ease;
+
+    height:100%;
+
+}
+
+.activity-card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 18px 36px rgba(15,23,42,.10);
+
+}
+
+.activity-card h2{
+
+    margin:8px 0 4px;
+
+    font-size:30px;
+
+    font-weight:700;
+
+    color:#0F172A;
+
+    letter-spacing:-.3px;
+
+}
+
+.activity-desc{
+
+    color:#64748B;
+
+    font-size:15px;
+
+    margin-bottom:6px 0 14px;
+
+}
+
+.activity-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:10px;
+
+    border-top:1px solid #EEF2F7;
+
+    padding-top:18px;
+
+}
+
+.activity-grid div{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    color:#334155;
+
+}
+
+
+/* ==========================================================
+SIDEBAR
+========================================================== */
+
+[data-testid="stSidebar"]{
+
+    background:#0F172A;
+
+    border-right:1px solid #1E293B;
+
+}
+
+[data-testid="stSidebar"] *{
+
+    color:#E2E8F0;
+
+}
+
+.sidebar-title{
+
+    text-align:center;
+
+    margin-top:8px;
+
+    margin-bottom:10px;
+
+}
+
+.sidebar-title h2{
+
+    margin-bottom:2px;
+
+    color:white;
+
+    font-size:22px;
+
+    font-weight:700;
+
+}
+
+.sidebar-title p{
+
+    color:#94A3B8;
+
+    font-size:14px;
+
+}
+
+.sidebar-section{
+
+    color:#64748B;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    margin:18px 0 10px;
+
+}
+
+.status-item{
+
+    background:#1E293B;
+
+    border-radius:12px;
+
+    padding:10px 12px;
+
+    margin-bottom:8px;
+
+    font-size:13px;
+
+    font-weight:500;
+
+}
+
+.status-item.online{
+
+    border-left:4px solid #22C55E;
+
+}
+
+[data-testid="stSidebar"] .stButton>button{
+
+    background:transparent;
+
+    color:white;
+
+    border:none;
+
+    text-align:left;
+
+    padding:8px 12px;
+
+    border-radius:12px;
+
+    transition:.2s;
+
+}
+
+[data-testid="stSidebar"] .stButton>button:hover{
+
+    background:#1E40AF;
+
+    color:white;
+
+    transform:translateX(6px);
+
+}
+
+[data-testid="stSidebar"] hr{
+
+    border-color:#334155;
+
+}
+
+section[data-testid="stSidebar"]{
+
+    width:260px !important;
+
+}
+
+
+/* ==========================================
+STREAMLIT TOOLBAR
+========================================== */
+
+[data-testid="stToolbar"]{
+
+    display:none;
+
+}
+
+[data-testid="stDecoration"]{
+
+    display:none;
+
+}
+
+
+/* ==========================================
+FOOTER
+========================================== */
+
+.footer{
+
+    text-align:center;
+
+    padding:30px 20px;
+
+    border-top:4px solid #0F5C46;
+
+}
+
+.footer h3{
+
+    color:#0F172A;
+
+    font-size:22px;
+
+    margin-bottom:8px;
+
+    font-weight:700;
+
+}
+
+.footer p{
+
+    color:#64748B;
+
+    margin:4px;
+
+}
+
+.footer-tech{
+
+    margin-top:15px;
+
+    color:#2563EB;
+
+    font-weight:600;
+
+}
+
+.footer-copy{
+
+    margin-top:18px;
+
+    color:#94A3B8;
+
+    font-size:13px;
+
+}
+
+/* ==========================================
+ANALYTICS CARD
+========================================== */
+
+.analytics-card{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:18px;
+
+    min-height:155px;
+
+    box-shadow:0 6px 20px rgba(0,0,0,.05);
+
+    position:relative;
+
+    margin-bottom:18px;
+
+}
+
+.analytics-card-title{
+
+    font-size:12px;
+
+    font-weight:700;
+
+    color:#64748B;
+
+    letter-spacing:.5px;
+
+}
+
+.analytics-card-icon{
+
+    position:absolute;
+
+    right:18px;
+
+    top:18px;
+
+    font-size:28px;
+
+}
+
+.analytics-card-value{
+
+    margin-top:12px;
+
+    font-size:42px;
+
+    font-weight:700;
+
+    color:#0F172A;
+
+}
+
+.analytics-card-sub{
+
+    color:#64748B;
+
+    font-size:14px;
+
+}
+
+.analytics-card-change{
+
+    margin-top:18px;
+
+    font-size:14px;
+
+    font-weight:600;
+
+}

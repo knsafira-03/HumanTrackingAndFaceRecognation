@@ -94,7 +94,7 @@ class RecognitionService:
                     f"({score:.3f})"
                 )
 
-                return name
+                return name, face_crop
 
         self.registry.update(
             track_id,
@@ -102,4 +102,4 @@ class RecognitionService:
             999
         )
 
-        return "Unknown"
+        return "Unknown", None

@@ -108,7 +108,7 @@ def main():
                     f"({x1},{y1})"
                 )
                 
-                name = recognition_service.recognize(
+                name, face_crop = recognition_service.recognize(
                     frame,
                     (x1, y1, x2, y2),
                     track_id
@@ -144,8 +144,10 @@ def main():
                         x1:x2
                     ]
 
+                    snapshot = face_crop if face_crop is not None else person_crop
+
                     snapshot_path = snapshot_service.save(
-                        person_crop,
+                        snapshot,
                         name,
                         event
                     )
