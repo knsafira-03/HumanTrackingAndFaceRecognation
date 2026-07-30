@@ -639,31 +639,45 @@ ANALYTICS CARD
 
 .analytics-card{
 
-    background:white;
+    background:#FFFFFF;
+
+    border:1px solid #E2E8F0;
 
     border-radius:18px;
 
-    padding:18px;
+    padding:20px;
 
-    min-height:155px;
+    min-height:185px;
 
-    box-shadow:0 6px 20px rgba(0,0,0,.05);
+    box-shadow:0 8px 24px rgba(15,23,42,.06);
 
     position:relative;
 
-    margin-bottom:18px;
+    margin-bottom:20px;
+
+    transition:all .25s ease;
+
+}
+
+.analytics-card:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 14px 32px rgba(15,23,42,.08);
 
 }
 
 .analytics-card-title{
 
-    font-size:12px;
+    font-size:13px;
 
-    font-weight:700;
+    font-weight:600;
 
     color:#64748B;
 
-    letter-spacing:.5px;
+    letter-spacing:.6px;
+
+    text-transform:uppercase;
 
 }
 
@@ -671,40 +685,156 @@ ANALYTICS CARD
 
     position:absolute;
 
-    right:18px;
+    right:20px;
 
-    top:18px;
+    top:20px;
 
-    font-size:28px;
+    width:42px;
+
+    height:42px;
+
+    border-radius:12px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:22px;
 
 }
 
 .analytics-card-value{
 
-    margin-top:12px;
+    margin-top:22px;
 
-    font-size:42px;
+    font-size:48px;
 
     font-weight:700;
 
     color:#0F172A;
 
+    line-height:1;
+
 }
 
 .analytics-card-sub{
 
+    margin-top:6px;
+
     color:#64748B;
 
-    font-size:14px;
+    font-size:15px;
 
 }
 
 .analytics-card-change{
 
-    margin-top:18px;
+    margin-top:22px;
 
     font-size:14px;
 
     font-weight:600;
+
+}
+
+/* ==========================================
+ANALYTICS SECTION
+========================================== */
+
+.analytics-section-title{
+    font-size:20px;
+    font-weight:700;
+    color:#0F172A;
+    margin-bottom:18px;
+    line-height:1.2;
+}
+
+/* ==========================================
+PEAK HOUR
+========================================== */
+
+.peak-hour-badge{
+
+    display:inline-block;
+
+    background:#DCFCE7;
+
+    color:#166534;
+
+    padding:8px 14px;
+
+    border-radius:10px;
+
+    font-weight:600;
+
+    margin-top:6px;
+
+    margin-bottom:12px;
+
+}
+
+.peak-hour-subtitle{
+
+    margin-top:10px;
+
+    margin-bottom:8px;
+
+    color:#64748B;
+
+    font-size:13px;
+
+}
+
+.peak-hour-value{
+
+    margin-top:10px;
+
+    font-size:54px;
+
+    font-weight:700;
+
+    color:#0F172A;
+
+    line-height:1;
+
+}
+
+.peak-hour-people{
+
+    color:#64748B;
+
+    font-size:15px;
+
+    margin-bottom:16px;
+
+}
+
+/* ==========================================
+STREAMLIT BORDER CONTAINER
+========================================== */
+
+div[data-testid="stVerticalBlockBorderWrapper"]{
+
+    background:#FFFFFF;
+
+    border-radius:18px !important;
+
+    border:1px solid #EEF2F7 !important;
+
+    box-shadow:0 8px 24px rgba(15,23,42,.06);
+
+    padding:8px;
+
+    transition:.25s;
+
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:0 16px 32px rgba(15,23,42,.10);
 
 }

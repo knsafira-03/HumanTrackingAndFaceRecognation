@@ -3,76 +3,98 @@ import streamlit as st
 
 def render_cards():
 
-    c1, c2, c3, c4 = st.columns(4)
-
     cards = [
         {
             "title": "ENTRY TODAY",
-            "value": "11",
+            "value": 11,
             "subtitle": "People",
             "change": "↑ 10%",
             "color": "#22C55E",
-            "icon": "↪️"
+            "icon": "↪️",
         },
         {
             "title": "EXIT TODAY",
-            "value": "20",
+            "value": 20,
             "subtitle": "People",
             "change": "↑ 15%",
             "color": "#3B82F6",
-            "icon": "↩️"
+            "icon": "↩️",
         },
         {
             "title": "UNAUTHORIZED",
-            "value": "18",
+            "value": 18,
             "subtitle": "Events",
             "change": "↓ 5%",
             "color": "#EF4444",
-            "icon": "🚨"
+            "icon": "🚨",
         },
         {
             "title": "CURRENT OCCUPANCY",
-            "value": "3",
+            "value": 3,
             "subtitle": "People Inside",
             "change": "",
             "color": "#8B5CF6",
-            "icon": "👥"
+            "icon": "👥",
         },
     ]
 
-    cols = [c1, c2, c3, c4]
+    cols = st.columns(4)
 
     for col, card in zip(cols, cards):
 
         with col:
-
             st.markdown(
-                f"""
-                <div class="analytics-card"
-                     style="border-left:4px solid {card['color']}">
+    f"""
+    <div style="
+        height:6px;
+        background:{card['color']};
+        border-radius:12px 12px 0 0;
+        margin-bottom:-8px;">
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-                    <div class="analytics-card-title">
-                        {card['title']}
+            with st.container(border=True):
+
+                top1, top2 = st.columns([5, 1])
+
+                with top1:
+                    st.caption(card["title"])
+
+                with top2:
+                    st.markdown(
+                        f"<div style='font-size:24px;text-align:right'>{card['icon']}</div>",
+                        unsafe_allow_html=True,
+                    )
+
+                st.markdown(
+                    f"""
+                    <div class="metric-number">
+                        {card["value"]}
                     </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
 
-                    <div class="analytics-card-icon">
-                        {card['icon']}
-                    </div>
+                st.caption(card["subtitle"])
 
-                    <div class="analytics-card-value">
-                        {card['value']}
-                    </div>
+                if card["change"]:
 
-                    <div class="analytics-card-sub">
-                        {card['subtitle']}
-                    </div>
+                    st.markdown(
+                        f"""
+                        <span style="
+                            color:{card['color']};
+                            font-weight:600;
+                            font-size:14px;">
+                            {card['change']}
+                        </span>
 
-                    <div class="analytics-card-change"
-                         style="color:{card['color']}">
-                        {card['change']}
-                    </div>
-
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+                        <span style="
+                            color:#64748B;
+                            font-size:13px;">
+                            &nbsp;vs yesterday
+                        </span>
+                        """,
+                        unsafe_allow_html=True,
+                    )
