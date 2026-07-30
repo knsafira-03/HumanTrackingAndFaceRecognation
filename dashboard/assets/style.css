@@ -318,6 +318,36 @@ BADGE
 
 }
 
+.badge-success,
+.badge-danger{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    font-size:12px;
+    font-weight:600;
+}
+
+.badge-success::before{
+    content:"";
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#22c55e;
+}
+
+.badge-danger::before{
+    content:"";
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#ef4444;
+}
+
 /* ==========================================
 ACTIVITY IMAGE
 ========================================== */
@@ -384,13 +414,13 @@ LIVE ACTIVITY
 
 .activity-card h2{
 
-    margin:8px 0 4px;
+    margin:12px 0 4px;
 
-    font-size:30px;
+    font-size:24px;
 
     font-weight:700;
 
-    color:#0F172A;
+    color:#111827;
 
     letter-spacing:-.3px;
 
