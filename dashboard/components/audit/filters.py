@@ -1,5 +1,7 @@
 import streamlit as st
 
+from services.database_service import DatabaseService
+
 
 def render_audit_filters():
 
@@ -17,8 +19,14 @@ def render_audit_filters():
 
     with c2:
 
+        # value=None penting -- kalau tidak diisi, Streamlit defaultnya
+        # otomatis TANGGAL HARI INI, yang bikin tabel keliatan kosong
+        # begitu filter tanggal diterapkan (karena data lama gak match
+        # "hari ini"). Dengan None, filter tanggal jadi opsional/off
+        # sampai user benar-benar pilih tanggal.
         st.date_input(
             "",
+            value=None,
             key="audit_date"
         )
 
@@ -48,10 +56,10 @@ def render_audit_filters():
 
     with c5:
 
+        known_users = DatabaseService().get_distinct_users()
+
         st.selectbox(
             "",
-            [
-                "All Users"
-            ],
+            ["All Users"] + known_users,
             key="audit_user"
         )

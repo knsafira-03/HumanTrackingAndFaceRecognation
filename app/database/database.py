@@ -40,9 +40,21 @@ class Database:
 
             direction TEXT,
 
-            snapshot_path TEXT
+            snapshot_path TEXT,
+
+            confidence REAL
         )
         """)
+
+        # Migrasi untuk database.db yang SUDAH ADA sebelum kolom ini
+        # ditambahkan -- CREATE TABLE IF NOT EXISTS tidak menambah kolom
+        # baru ke tabel yang sudah terlanjur dibuat tanpa kolom ini.
+        cursor.execute("PRAGMA table_info(attendance)")
+        existing_columns = [col[1] for col in cursor.fetchall()]
+
+        if "confidence" not in existing_columns:
+            cursor.execute("ALTER TABLE attendance ADD COLUMN confidence REAL")
+            print("[DATABASE] Kolom 'confidence' ditambahkan ke tabel attendance (migrasi).")
 
         # =====================================
         # Room Occupancy

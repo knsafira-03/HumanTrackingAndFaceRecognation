@@ -13,6 +13,7 @@ from app.services.recognition_service import RecognitionService
 
 from app.snapshot.snapshot_service import SnapshotService
 from app.notification.notification_manager import NotificationManager
+from app.utils.status_writer import write_status
 
 # from app.recognition.face_database import FaceDatabase
 # from app.recognition.face_recognizer import FaceRecognizer
@@ -57,8 +58,20 @@ def main():
 
     detector.open_camera(CAMERA_INDEX)
 
+    # semua modul berhasil di-init -> laporkan status awal ke dashboard
+    write_status(
+        yolo_engine=True,
+        face_recognition=True,
+        whatsapp=True,
+    )
+
     # supaya tidak error ketika frame pertama kosong
     current_side = 0
+
+    # status koneksi WhatsApp yang SEBENARNYA (bukan hardcode True terus),
+    # di-update tiap ada event terkirim, dilaporkan ke dashboard lewat
+    # write_status() di bawah.
+    last_whatsapp_ok = True
 
     # ==========================================
     # MAIN LOOP
@@ -66,6 +79,7 @@ def main():
     prev_time = time.time()
 
     last_preview_save = 0
+    last_status_write = time.time()
 
     while True:
 
@@ -107,7 +121,7 @@ def main():
                     f"{track_id} "
                     f"({x1},{y1})"
                 )
-                
+
                 name, face_crop = recognition_service.recognize(
                     frame,
                     (x1, y1, x2, y2),
@@ -152,25 +166,45 @@ def main():
                         event
                     )
 
+                    # Ambil confidence (cosine distance) dari registry yang
+                    # dipakai recognition_service, lalu ubah jadi persentase
+                    # yang gampang dibaca di dashboard (0 distance = 100%,
+                    # makin besar distance makin rendah persentasenya).
+                    # Ini metrik pendekatan, bukan probabilitas statistik
+                    # yang presisi -- tapi cukup buat indikasi di UI.
+                    raw_distance = recognition_service.registry.get_confidence(track_id)
+
+                    if name == "Unknown" or raw_distance is None:
+                        confidence_pct = None
+                    else:
+                        confidence_pct = round(max(0, 1 - raw_distance) * 100, 2)
+
                     attendance.save_event(
                         track_id=track_id,
                         direction=event,
                         name=name,
-                        snapshot_path=snapshot_path
+                        snapshot_path=snapshot_path,
+                        confidence=confidence_pct
                     )
 
                     status = (
-                        "UNAUTHORIZED"      
+                        "UNAUTHORIZED"
                         if name == "Unknown"
                         else "AUTHORIZED"
                     )
 
-                    notification.send_event(
-                        name=name,
-                        status=status,
-                        direction=event,
-                        snapshot_path=snapshot_path
-                    )
+                    try:
+                        result = notification.send_event(
+                            name=name,
+                            status=status,
+                            direction=event,
+                            snapshot_path=snapshot_path
+                        )
+                        last_whatsapp_ok = bool(result.get("status", False))
+
+                    except Exception as e:
+                        print(f"[NOTIFICATION] Gagal kirim notifikasi: {e}")
+                        last_whatsapp_ok = False
 
                 person_count += 1
 
@@ -263,6 +297,20 @@ def main():
             (255,255,255),
             2
         )
+
+        # ==========================================
+        # HEARTBEAT
+        # ==========================================
+
+        if time.time() - last_status_write > 3:
+
+            write_status(
+                yolo_engine=True,
+                face_recognition=True,
+                whatsapp=last_whatsapp_ok,
+            )
+
+            last_status_write = time.time()
 
         # ==========================================
         # LIVE PREVIEW

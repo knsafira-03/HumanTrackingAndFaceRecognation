@@ -2,13 +2,21 @@ import streamlit as st
 
 from components.audit.header import render_audit_header
 from components.audit.filters import render_audit_filters
-from components.audit.table import render_audit_table
+from components.audit.table import get_filtered_logs, render_audit_table
 from components.audit.detail import render_detail_panel
 
 
 def render_audit_log():
 
-    render_audit_header()
+    # Catatan soal urutan: get_filtered_logs() dipanggil SEBELUM widget
+    # filter di bawah dirender. Ini aman di Streamlit -- begitu user
+    # mengubah sebuah widget, session_state-nya sudah ter-update duluan
+    # SEBELUM script dijalankan ulang dari atas. Jadi filter yang paling
+    # baru tetap kebaca meski urutan render di layar (header di atas,
+    # filter di bawah) dibalik dari urutan baca datanya.
+    logs = get_filtered_logs()
+
+    render_audit_header(logs)
 
     st.write("")
 
@@ -23,20 +31,11 @@ def render_audit_log():
 
     with left:
 
-        render_audit_table()
-
-        dummy_log = {
-        "name": "Khalisa",
-        "role": "Registered User",
-        "status": "AUTHORIZED",
-        "event": "Entry",
-        "time": "30 Jul 2026 09:48:12",
-        "location": "Server Room",
-        "track_id": "#13",
-        "confidence": 99.41,
-        "snapshot": "https://placehold.co/300x300",
-    }
+        selected_log = render_audit_table(logs)
 
     with right:
 
-        render_detail_panel(dummy_log)
+        if selected_log is not None:
+            render_detail_panel(selected_log)
+        else:
+            st.info("Tidak ada data untuk ditampilkan.")

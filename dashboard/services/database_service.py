@@ -104,37 +104,6 @@ class DatabaseService:
         return row[0]
 
     # =====================================
-    # RECENT ACTIVITY
-    # =====================================
-
-    def get_recent_activity(
-        self,
-        limit=10
-    ):
-
-        return self.execute("""
-            SELECT
-
-                timestamp,
-
-                track_id,
-
-                name,
-
-                status,
-
-                direction,
-
-                snapshot_path
-
-            FROM attendance
-
-            ORDER BY id DESC
-
-            LIMIT ?
-        """, (limit,))
-
-    # =====================================
     # ALL LOGS
     # =====================================
 
@@ -147,6 +116,21 @@ class DatabaseService:
 
             ORDER BY id DESC
         """)
+
+    # =====================================
+    # DISTINCT USERS (dropdown filter "All Users" di Audit Log)
+    # =====================================
+
+    def get_distinct_users(self):
+
+        rows = self.execute("""
+            SELECT DISTINCT name
+            FROM attendance
+            WHERE name IS NOT NULL AND name != 'Unknown'
+            ORDER BY name
+        """)
+
+        return [row[0] for row in rows]
 
     # =====================================
     # DIRECTION CHART

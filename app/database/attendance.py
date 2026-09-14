@@ -12,7 +12,8 @@ class Attendance:
         track_id,
         direction,
         name,
-        snapshot_path=None
+        snapshot_path=None,
+        confidence=None
     ):
 
         conn = self.database.connect()
@@ -40,11 +41,12 @@ class Attendance:
                 name,
                 status,
                 direction,
-                snapshot_path
+                snapshot_path,
+                confidence
             )
 
             VALUES
-            (?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 timestamp,
@@ -52,7 +54,8 @@ class Attendance:
                 name,
                 status,
                 direction,
-                snapshot_path
+                snapshot_path,
+                confidence
             )
         )
 

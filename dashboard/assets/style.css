@@ -58,8 +58,6 @@ header{
 
     background:transparent !important;
 
-    height:0 !important;
-
 }
 
 header [data-testid="stToolbar"]{
@@ -79,6 +77,16 @@ header [data-testid="stDecoration"]{
     background:transparent !important;
 
     border:none !important;
+
+    height:auto !important;
+
+}
+
+[data-testid="stExpandSidebarButton"]{
+
+    visibility:visible !important;
+
+    opacity:1 !important;
 
 }
 
@@ -598,7 +606,7 @@ STREAMLIT TOOLBAR
 
 [data-testid="stToolbar"]{
 
-    display:none;
+    visibility:hidden;
 
 }
 

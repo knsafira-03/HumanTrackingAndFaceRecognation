@@ -32,7 +32,7 @@ def render_activity_card(row, base_dir):
         badge_text = "UNAUTHORIZED"
         description = "Unknown Person"
 
-    direction_text = "📍 Entrance" if direction.upper() == "IN" else "📍 Exit"
+    direction_text = "📍 Entrance" if direction.upper() == "MASUK" else "📍 Exit"
 
     cols = st.columns([1, 4.5], gap="small")
 
