@@ -5,21 +5,37 @@ class LineCounter:
 
     def __init__(self):
 
-        # Garis pembatas
+        # ======================================
+        # GARIS PEMBATAS
+        # ======================================
+
         self.line_p1 = (278, 302)
         self.line_p2 = (394, 300)
 
-        # Toleransi jarak dari garis
+        # ======================================
+        # TOLERANSI GARIS
+        # ======================================
+
         self.cross_threshold = 100
 
-        # Cooldown antar event (detik)
+        # ======================================
+        # COOLDOWN EVENT
+        # ======================================
+
         self.cooldown = 2
 
-        # Menyimpan state tiap track
+        # ======================================
+        # STATE TRACK
+        # ======================================
+
         self.tracker_state = {}
 
         self.in_count = 0
         self.out_count = 0
+
+    # ==========================================
+    # CROSS PRODUCT
+    # ==========================================
 
     def get_cross_product(self, P, Q, S):
 
@@ -28,6 +44,10 @@ class LineCounter:
             -
             (S[1] - P[1]) * (Q[0] - P[0])
         )
+
+    # ==========================================
+    # GET SIDE
+    # ==========================================
 
     def get_side(self, foot_point):
 
@@ -46,60 +66,143 @@ class LineCounter:
         else:
             return 0
 
+    # ==========================================
+    # UPDATE
+    # ==========================================
+
     def update(self, track_id, current_side):
 
-        # Tepat di atas garis
+        # --------------------------------------
+        # Titik terlalu dekat dengan garis
+        # --------------------------------------
+
         if current_side == 0:
             return None
 
         current_time = time.time()
 
-        # Track baru
+        # ======================================
+        # TRACK BARU
+        # ======================================
+
         if track_id not in self.tracker_state:
 
             self.tracker_state[track_id] = {
+
                 "side": current_side,
+
                 "last_event_time": 0
             }
 
+            print(
+                f"[INIT] "
+                f"ID {track_id} "
+                f"side={current_side}"
+            )
+
             return None
 
-        previous_side = self.tracker_state[track_id]["side"]
+        # ======================================
+        # AMBIL STATE SEBELUMNYA
+        # ======================================
 
-        # Tidak berpindah sisi
+        previous_side = self.tracker_state[
+            track_id
+        ]["side"]
+
+        last_event_time = self.tracker_state[
+            track_id
+        ]["last_event_time"]
+
+        # ======================================
+        # TIDAK BERPINDAH SISI
+        # ======================================
+
         if previous_side == current_side:
-            return None
-
-        # Cooldown
-        last_event_time = self.tracker_state[track_id]["last_event_time"]
-
-        if current_time - last_event_time < self.cooldown:
-
-            # tetap update side supaya sinkron
-            self.tracker_state[track_id]["side"] = current_side
 
             return None
+
+        # ======================================
+        # COOLDOWN
+        # ======================================
+
+        if (
+            current_time - last_event_time
+            < self.cooldown
+        ):
+
+            print(
+                f"[COOLDOWN] "
+                f"ID {track_id} "
+                f"{previous_side} -> {current_side}"
+            )
+
+            # PENTING:
+            # JANGAN update side di sini.
+            #
+            # Kalau event sedang cooldown,
+            # kita mempertahankan side sebelumnya.
+            #
+            return None
+
+        # ======================================
+        # EVENT
+        # ======================================
 
         event = None
 
-        # Atas -> bawah
-        if previous_side == 1 and current_side == -1:
+        # ======================================
+        # SIDE 1 -> SIDE -1
+        # MASUK
+        # ======================================
+
+        if (
+            previous_side == 1
+            and current_side == -1
+        ):
 
             self.in_count += 1
+
             event = "MASUK"
 
-            print(f"[EVENT] ID {track_id} -> MASUK")
+            print(
+                f"[EVENT] "
+                f"ID {track_id} "
+                f"-> MASUK"
+            )
 
-        # Bawah -> atas
-        elif previous_side == -1 and current_side == 1:
+        # ======================================
+        # SIDE -1 -> SIDE 1
+        # KELUAR
+        # ======================================
+
+        elif (
+            previous_side == -1
+            and current_side == 1
+        ):
 
             self.out_count += 1
+
             event = "KELUAR"
 
-            print(f"[EVENT] ID {track_id} -> KELUAR")
+            print(
+                f"[EVENT] "
+                f"ID {track_id} "
+                f"-> KELUAR"
+            )
 
-        # Update state
-        self.tracker_state[track_id]["side"] = current_side
-        self.tracker_state[track_id]["last_event_time"] = current_time
+        # ======================================
+        # UPDATE STATE
+        # ======================================
+
+        if event is not None:
+
+            self.tracker_state[
+                track_id
+            ]["side"] = current_side
+
+            self.tracker_state[
+                track_id
+            ]["last_event_time"] = current_time
 
         return event
