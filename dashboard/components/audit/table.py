@@ -29,7 +29,7 @@ def render_audit_table():
         ]
     )
 
-    st.dataframe(
+    st.data_editor(
         df,
         use_container_width=True,
         hide_index=True

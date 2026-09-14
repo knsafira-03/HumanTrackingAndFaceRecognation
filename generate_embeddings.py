@@ -3,7 +3,7 @@ import pickle
 from app.recognition.face_database import FaceDatabase
 from app.recognition.face_recognizer import FaceRecognizer
 
-
+# membaca dataset foto dan menghasilkan embeddings wajah, lalu menyimpannya ke file embeddings.pkl
 def main():
 
     print("=" * 40)

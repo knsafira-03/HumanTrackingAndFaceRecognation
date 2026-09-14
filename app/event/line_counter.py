@@ -6,8 +6,8 @@ class LineCounter:
     def __init__(self):
 
         # Garis pembatas
-        self.line_p1 = (50, 240)
-        self.line_p2 = (590, 240)
+        self.line_p1 = (278, 302)
+        self.line_p2 = (394, 300)
 
         # Toleransi jarak dari garis
         self.cross_threshold = 100

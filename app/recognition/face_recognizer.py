@@ -13,7 +13,7 @@ class FaceRecognizer:
 
         print("[INFO] FaceNet Loaded")
 
-    def generate_embedding(self, image):
+    def generate_embedding(self, image): #mengonversui gambar ke format RGB dan menghasilkan embedding wajah menggunakan model FaceNet
 
         rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -21,8 +21,8 @@ class FaceRecognizer:
 
         return embedding
 
-    def recognize(self, image, known_faces, threshold=0.65):
-
+    def recognize(self, image, known_faces, threshold=0.65): #mengenali wajah dalam gambar berdasarkan daftar wajah yang dikenal
+        # face matching menggunakan cosine similarity untuk membandingkan embedding wajah yang dihasilkan dengan embedding wajah yang dikenal
         embedding = self.generate_embedding(image)
 
         best_name = "Unknown"
