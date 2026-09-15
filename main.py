@@ -5,6 +5,7 @@ import os
 from app.detector.detector import PersonDetector
 from app.tracker.tracker import PersonTracker
 from app.event.line_counter import LineCounter
+from app.event.track_resolver import TrackIdentityResolver
 
 from app.database.database import Database
 from app.database.attendance import Attendance
@@ -14,6 +15,7 @@ from app.services.recognition_service import RecognitionService
 from app.snapshot.snapshot_service import SnapshotService
 from app.notification.notification_manager import NotificationManager
 from app.utils.status_writer import write_status
+from app.utils.hud import draw_hud
 
 # from app.recognition.face_database import FaceDatabase
 # from app.recognition.face_recognizer import FaceRecognizer
@@ -44,6 +46,18 @@ def main():
     recognition_service = RecognitionService()
     snapshot_service = SnapshotService()
     notification = NotificationManager()
+
+    # Menjembatani track_id yang "putus" gara-gara ByteTrack ganti ID
+    # (oklusi, ganti pose, 2 orang berpapasan). Toleransi LONGGAR khusus
+    # untuk identitas yang sudah locked -- lihat
+    # app/event/track_resolver.py untuk penjelasan lengkap.
+    track_resolver = TrackIdentityResolver(
+        is_locked_fn=recognition_service.registry.is_locked,
+        max_distance=150,          # untuk track yang BELUM locked (ketat)
+        max_age=2.5,
+        locked_max_distance=350,   # untuk track yang SUDAH locked (longgar)
+        locked_max_age=8.0,
+    )
 
     # face_recognizer = FaceRecognizer()
 
@@ -98,6 +112,8 @@ def main():
 
         person_count = 0
 
+        seen_stable_ids = set()
+
         for result in results:
 
             if result.boxes.id is None:
@@ -114,33 +130,53 @@ def main():
                 x1, y1, x2, y2 = map(int, box)
 
                 # ==================================
-                # TRACK REGISTRY
+                # SAMBUNGKAN track_id YANG "PUTUS"
                 # ==================================
+                # Titik kaki dipakai KHUSUS untuk line_counter (memang
+                # begitu cara kerja hitung nyebrang garis). Untuk
+                # menyambungkan track_id yang putus (resolver), pakai
+                # titik TENGAH kotak -- lebih stabil dibanding titik kaki
+                # saat orang ganti pose (berdiri -> duduk), karena titik
+                # kaki bisa "meloncat" jauh ketika tinggi kotak berubah
+                # drastis, padahal orangnya sama.
+
+                foot_x = int((x1 + x2) / 2)
+                foot_y = int(y2)
+
+                box_center = (
+                    int((x1 + x2) / 2),
+                    int((y1 + y2) / 2)
+                )
+
+                stable_id = track_resolver.resolve(
+                    track_id,
+                    box_center
+                )
+
+                seen_stable_ids.add(stable_id)
+
                 print(
                     f"[TRACK] "
-                    f"{track_id} "
+                    f"raw={track_id} stable={stable_id} "
                     f"({x1},{y1})"
                 )
 
                 name, face_crop = recognition_service.recognize(
                     frame,
                     (x1, y1, x2, y2),
-                    track_id
+                    stable_id
                 )
 
                 # ==================================
                 # LINE COUNTER
                 # ==================================
 
-                foot_x = int((x1 + x2) / 2)
-                foot_y = int(y2)
-
                 current_side = line_counter.get_side(
                     (foot_x, foot_y)
                 )
 
                 event = line_counter.update(
-                    track_id,
+                    stable_id,
                     current_side
                 )
 
@@ -172,7 +208,7 @@ def main():
                     # makin besar distance makin rendah persentasenya).
                     # Ini metrik pendekatan, bukan probabilitas statistik
                     # yang presisi -- tapi cukup buat indikasi di UI.
-                    raw_distance = recognition_service.registry.get_confidence(track_id)
+                    raw_distance = recognition_service.registry.get_confidence(stable_id)
 
                     if name == "Unknown" or raw_distance is None:
                         confidence_pct = None
@@ -180,7 +216,7 @@ def main():
                         confidence_pct = round(max(0, 1 - raw_distance) * 100, 2)
 
                     attendance.save_event(
-                        track_id=track_id,
+                        track_id=stable_id,
                         direction=event,
                         name=name,
                         snapshot_path=snapshot_path,
@@ -222,7 +258,7 @@ def main():
 
                 cv2.putText(
                     frame,
-                    f"{name} | ID {track_id} | {conf:.2f}",
+                    f"{name} | ID {stable_id} | {conf:.2f}",
                     (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.7,
@@ -230,47 +266,10 @@ def main():
                     2
                 )
 
-        # ==========================================
-        # DASHBOARD
-        # ==========================================
-
-        cv2.rectangle(
-            frame,
-            (10, 10),
-            (230, 120),
-            (0, 0, 0),
-            -1
-        )
-
-        cv2.putText(
-            frame,
-            f"Person : {person_count}",
-            (20, 40),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (0, 255, 0),
-            2
-        )
-
-        cv2.putText(
-            frame,
-            f"IN : {line_counter.in_count}",
-            (20, 70),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (0, 255, 0),
-            2
-        )
-
-        cv2.putText(
-            frame,
-            f"OUT : {line_counter.out_count}",
-            (20, 100),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (0, 0, 255),
-            2
-        )
+        # Beri tahu resolver siapa saja yang KELIHATAN di frame ini --
+        # yang tidak kelihatan dipindah ke daftar "lost", siap diadopsi
+        # kalau track_id baru muncul dekat posisi terakhirnya.
+        track_resolver.mark_missing(seen_stable_ids)
 
         # ==========================================
         # LINE
@@ -288,14 +287,16 @@ def main():
         fps = 1 / (current_time - prev_time)
         prev_time = current_time
 
-        cv2.putText(
+        # ==========================================
+        # HUD (panel Person/Masuk/Keluar/FPS)
+        # ==========================================
+
+        draw_hud(
             frame,
-            f"FPS : {fps:.1f}",
-            (20, 130),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (255,255,255),
-            2
+            person_count,
+            line_counter.in_count,
+            line_counter.out_count,
+            fps
         )
 
         # ==========================================

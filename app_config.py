@@ -1,5 +1,5 @@
 # CAMERA
-CAMERA_INDEX = 1
+CAMERA_INDEX = 0
 
 # YOLO MODEL
 YOLO_MODEL = "models/yolo/yolov8n.pt"
