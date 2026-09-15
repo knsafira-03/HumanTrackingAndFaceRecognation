@@ -49,7 +49,8 @@ class RecognitionService:
         # ==========================================
 
         self.registry = TrackRegistry(
-            confirmation_required=3
+            votes_required=FACE_LOCK_VOTES,
+            history_size=FACE_VOTE_HISTORY
         )
 
         print("[INFO] Recognition Service Ready")
@@ -149,7 +150,8 @@ class RecognitionService:
                 name, distance = (
                     self.face_recognizer.recognize(
                         face_crop,
-                        self.known_faces
+                        self.known_faces,
+                        threshold=0.55
                     )
                 )
 

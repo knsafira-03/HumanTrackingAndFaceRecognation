@@ -20,3 +20,6 @@ WINDOW_NAME = "Human Monitoring System"
 
 # DEBUG
 DEBUG = False
+
+FACE_LOCK_VOTES = 3
+FACE_VOTE_HISTORY = 6

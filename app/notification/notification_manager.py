@@ -32,12 +32,11 @@ class NotificationManager:
                     "🛡️ *SMART SERVER ROOM*\n\n"
                     "✅ *AUTHORIZED ACCESS*\n\n"
                     f"👤 Nama : *{name}*\n"
-                    "🏢 Lokasi : *Server Room Diskominfo*\n"
                     f"📍 Arah : *{direction}*\n\n"
                     f"🕒 Waktu :\n{now}\n\n"
-                    "📊 Event berhasil dicatat ke sistem.\n\n"
+                    "Event berhasil dicatat ke sistem.\n"
                     "────────────────────\n"
-                    "🤖 Smart Server Room Monitoring System"
+                    "Smart Server Room Monitoring System"
                 )
 
             else:
@@ -46,12 +45,11 @@ class NotificationManager:
                     "🛡️ *SMART SERVER ROOM*\n\n"
                     "🚪 *EXIT DETECTED*\n\n"
                     f"👤 Nama : *{name}*\n"
-                    "🏢 Lokasi : *Server Room Diskominfo*\n"
                     f"📍 Arah : *{direction}*\n\n"
                     f"🕒 Waktu :\n{now}\n\n"
-                    "📊 Event berhasil dicatat ke sistem.\n\n"
+                    "Event berhasil dicatat ke sistem.\n"
                     "────────────────────\n"
-                    "🤖 Smart Server Room Monitoring System"
+                    "Smart Server Room Monitoring System"
                 )
 
         # ===============================
@@ -64,14 +62,12 @@ class NotificationManager:
                 "🚨 *SECURITY ALERT*\n\n"
                 "❌ *UNAUTHORIZED ACCESS*\n\n"
                 "👤 *Unknown Person*\n"
-                "🏢 Lokasi : *Server Room Diskominfo*\n"
                 f"📍 Arah : *{direction}*\n\n"
                 f"🕒 Waktu :\n{now}\n\n"
-                "📸 Snapshot berhasil disimpan.\n\n"
-                "🖥️ Silakan buka Dashboard\n"
+                "Silakan buka Dashboard\n"
                 "untuk melihat foto lengkap.\n\n"
                 "────────────────────\n"
-                "🤖 Smart Server Room Monitoring System"
+                "Smart Server Room Monitoring System"
             )
 
         return self.whatsapp.send_message(

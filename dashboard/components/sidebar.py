@@ -1,25 +1,8 @@
-import json
-import time
 import streamlit as st
 from pathlib import Path
 
 from services.database_service import DatabaseService
-
-
-STATUS_FILE = Path(__file__).resolve().parents[2] / "system_status.json"
-STALE_SECONDS = 10  # kalau heartbeat lebih tua dari ini, dianggap main.py mati
-
-
-def _read_heartbeat():
-    if not STATUS_FILE.exists():
-        return None
-    try:
-        with open(STATUS_FILE, "r") as f:
-            data = json.load(f)
-        data["is_alive"] = (time.time() - data.get("timestamp", 0)) < STALE_SECONDS
-        return data
-    except Exception:
-        return None
+from services.system_status_service import read_heartbeat
 
 
 def _check_database():
@@ -85,7 +68,7 @@ def render_sidebar():
             unsafe_allow_html=True,
         )
 
-        heartbeat = _read_heartbeat()
+        heartbeat = read_heartbeat()
         main_alive = bool(heartbeat and heartbeat.get("is_alive"))
 
         yolo_online = main_alive and bool(heartbeat.get("yolo_engine"))
