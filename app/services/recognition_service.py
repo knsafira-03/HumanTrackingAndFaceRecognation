@@ -150,8 +150,7 @@ class RecognitionService:
                 name, distance = (
                     self.face_recognizer.recognize(
                         face_crop,
-                        self.known_faces,
-                        threshold=0.55
+                        self.known_faces
                     )
                 )
 

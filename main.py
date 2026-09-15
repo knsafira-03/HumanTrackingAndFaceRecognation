@@ -48,15 +48,17 @@ def main():
     notification = NotificationManager()
 
     # Menjembatani track_id yang "putus" gara-gara ByteTrack ganti ID
-    # (oklusi, ganti pose, 2 orang berpapasan). Toleransi LONGGAR khusus
-    # untuk identitas yang sudah locked -- lihat
-    # app/event/track_resolver.py untuk penjelasan lengkap.
+    # (oklusi, ganti pose, 2 orang berpapasan). Toleransi untuk identitas
+    # locked TIDAK dibuat terlalu besar -- kalau kebesaran, begitu 2 orang
+    # jalan berdekatan (misal keluar bareng), identitas yang satu bisa
+    # "ketarik" salah nempel ke yang lain gara-gara jaraknya kebetulan
+    # lebih dekat. lihat app/event/track_resolver.py untuk penjelasan.
     track_resolver = TrackIdentityResolver(
         is_locked_fn=recognition_service.registry.is_locked,
-        max_distance=150,          # untuk track yang BELUM locked (ketat)
-        max_age=2.5,
-        locked_max_distance=350,   # untuk track yang SUDAH locked (longgar)
-        locked_max_age=8.0,
+        max_distance=120,          # untuk track yang BELUM locked (ketat)
+        max_age=2.0,
+        locked_max_distance=180,   # untuk track yang SUDAH locked (agak longgar, TAPI TIDAK KEBESARAN)
+        locked_max_age=4.0,
     )
 
     # face_recognizer = FaceRecognizer()
@@ -112,7 +114,13 @@ def main():
 
         person_count = 0
 
-        seen_stable_ids = set()
+        # ==================================
+        # LANGKAH A: kumpulkan SEMUA orang di frame ini dulu, baru
+        # sambungkan track_id yang putus SEKALIGUS (bukan satu-satu).
+        # ==================================
+
+        raw_detections = []  # (track_id, box, conf)
+        positions_for_resolver = []  # (track_id, box_center)
 
         for result in results:
 
@@ -127,33 +135,77 @@ def main():
 
             for box, track_id, conf in zip(boxes, ids, confs):
 
+                raw_detections.append((track_id, box, conf))
+
                 x1, y1, x2, y2 = map(int, box)
-
-                # ==================================
-                # SAMBUNGKAN track_id YANG "PUTUS"
-                # ==================================
-                # Titik kaki dipakai KHUSUS untuk line_counter (memang
-                # begitu cara kerja hitung nyebrang garis). Untuk
-                # menyambungkan track_id yang putus (resolver), pakai
-                # titik TENGAH kotak -- lebih stabil dibanding titik kaki
-                # saat orang ganti pose (berdiri -> duduk), karena titik
-                # kaki bisa "meloncat" jauh ketika tinggi kotak berubah
-                # drastis, padahal orangnya sama.
-
-                foot_x = int((x1 + x2) / 2)
-                foot_y = int(y2)
 
                 box_center = (
                     int((x1 + x2) / 2),
                     int((y1 + y2) / 2)
                 )
 
-                stable_id = track_resolver.resolve(
-                    track_id,
-                    box_center
+                positions_for_resolver.append((track_id, box_center))
+
+        id_map = track_resolver.resolve_frame(positions_for_resolver)
+
+        # ==================================
+        # LANGKAH A.5: CEGAH 1 NAMA DIPEGANG 2 TRACK SEKALIGUS
+        # ==================================
+        # Bisa kejadian gara-gara track_resolver salah "mengadopsi"
+        # identitas locked ke orang yang berbeda (misal 2 orang jalan
+        # berdekatan). Kalau ini dibiarkan, 1 nama bisa nempel di 2
+        # bounding box bersamaan -- padahal secara logika itu mustahil.
+        # Yang confidence-nya lebih jelek di-reset paksa (registry.remove),
+        # supaya dia mulai dari nol lagi (voting ulang), bukan menyamar
+        # jadi nama orang lain.
+
+        stable_ids_this_frame = set(id_map.values())
+
+        name_to_stable_ids = {}
+
+        for stable_id in stable_ids_this_frame:
+
+            if recognition_service.registry.is_locked(stable_id):
+
+                name = recognition_service.registry.get_name(stable_id)
+
+                name_to_stable_ids.setdefault(name, []).append(stable_id)
+
+        for name, ids_with_this_name in name_to_stable_ids.items():
+
+            if len(ids_with_this_name) > 1:
+
+                best_id = min(
+                    ids_with_this_name,
+                    key=lambda sid: recognition_service.registry.get_confidence(sid)
                 )
 
-                seen_stable_ids.add(stable_id)
+                for sid in ids_with_this_name:
+
+                    if sid != best_id:
+
+                        print(
+                            f"[CONFLICT] Nama '{name}' dipegang "
+                            f"{len(ids_with_this_name)} track sekaligus "
+                            f"(stable_id={sid} vs {best_id}, "
+                            f"{best_id} dipertahankan) -- "
+                            f"stable_id={sid} direset, dikenali ulang"
+                        )
+
+                        recognition_service.registry.remove(sid)
+
+        # ==================================
+        # LANGKAH B: proses tiap orang seperti biasa, pakai stable_id
+        # ==================================
+
+        for track_id, box, conf in raw_detections:
+
+                x1, y1, x2, y2 = map(int, box)
+
+                foot_x = int((x1 + x2) / 2)
+                foot_y = int(y2)
+
+                stable_id = id_map[track_id]
 
                 print(
                     f"[TRACK] "
@@ -202,12 +254,6 @@ def main():
                         event
                     )
 
-                    # Ambil confidence (cosine distance) dari registry yang
-                    # dipakai recognition_service, lalu ubah jadi persentase
-                    # yang gampang dibaca di dashboard (0 distance = 100%,
-                    # makin besar distance makin rendah persentasenya).
-                    # Ini metrik pendekatan, bukan probabilitas statistik
-                    # yang presisi -- tapi cukup buat indikasi di UI.
                     raw_distance = recognition_service.registry.get_confidence(stable_id)
 
                     if name == "Unknown" or raw_distance is None:
@@ -265,11 +311,6 @@ def main():
                     (0, 255, 0),
                     2
                 )
-
-        # Beri tahu resolver siapa saja yang KELIHATAN di frame ini --
-        # yang tidak kelihatan dipindah ke daftar "lost", siap diadopsi
-        # kalau track_id baru muncul dekat posisi terakhirnya.
-        track_resolver.mark_missing(seen_stable_ids)
 
         # ==========================================
         # LINE
