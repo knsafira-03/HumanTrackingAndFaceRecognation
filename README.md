@@ -1,274 +1,164 @@
-# Human Tracking And Face Recognation - Smart Secure Room Monitoring System
+Smart Server Room Access Monitoring
+Sistem pemantauan akses ruang server berbasis deteksi orang (YOLOv8), pengenalan wajah (FaceNet), dan penghitungan MASUK/KELUAR otomatis, dilengkapi dashboard web (Streamlit) dan notifikasi WhatsApp.
 
-> PKL Project - Diskominfo (Divisi Persandian)
+Dibuat untuk Dinas Komunikasi dan Informatika Kota Probolinggo.
 
-## 📖 Deskripsi
-
-**Smart Secure Room Monitoring System** merupakan sistem monitoring ruangan berbasis **Computer Vision** yang dikembangkan selama Praktik Kerja Lapangan (PKL) di **Dinas Komunikasi dan Informatika (Diskominfo)**, khususnya pada **Divisi Persandian**.
-
-Sistem ini bertujuan membantu petugas dalam memantau aktivitas keluar dan masuk ruangan secara otomatis tanpa harus terus-menerus mengawasi layar CCTV.
-
-Dengan memanfaatkan teknologi **Artificial Intelligence (AI)** dan **Computer Vision**, sistem mampu mendeteksi keberadaan manusia, mencatat aktivitas masuk maupun keluar ruangan, menyimpan riwayat aktivitas ke database, serta mengirimkan notifikasi secara real-time kepada petugas.
-
-Sebagai pengembangan lanjutan, sistem dirancang agar dapat mendukung **Face Recognition** untuk mengenali identitas pengguna apabila diperlukan.
-
----
-
-# 🎯 Tujuan Proyek
-
-* Mengotomatisasi proses monitoring ruangan menggunakan CCTV.
-* Mendeteksi aktivitas manusia yang masuk dan keluar ruangan.
-* Mengurangi kebutuhan pengawasan CCTV secara terus-menerus.
-* Menyimpan log aktivitas secara otomatis.
-* Mengirimkan notifikasi real-time kepada petugas.
-* Menyediakan dashboard monitoring aktivitas.
-* Membangun sistem yang dapat dikembangkan lebih lanjut untuk kebutuhan keamanan ruangan.
-
----
-
-# ✨ Fitur
-
-### ✅ Human Detection
-
-Mendeteksi keberadaan manusia menggunakan model YOLO.
-
-### ✅ Human Tracking
-
-Memberikan ID unik pada setiap objek manusia sehingga dapat dilacak.
-
-### ✅ Entry & Exit Detection
-
-Mengidentifikasi apakah seseorang masuk atau keluar ruangan menggunakan virtual line.
-
-### ✅ Activity Logging
-
-Menyimpan seluruh aktivitas ke database beserta waktu kejadian.
-
-### ✅ Snapshot Capture
-
-Mengambil gambar otomatis ketika aktivitas terdeteksi.
-
-### ✅ Real-Time Notification
-
-Mengirimkan notifikasi melalui:
-
-* WhatsApp (prioritas implementasi)
-* Telegram (alternatif)
-
-### ✅ Dashboard Monitoring
-
-Menampilkan riwayat aktivitas secara real-time.
-
-### 🚧 Face Recognition (Future Development)
-
-Mengidentifikasi identitas orang yang masuk atau keluar ruangan.
-
----
-
-# 🏗️ Arsitektur Sistem
-
-```text
-                 CCTV Camera
-                      │
-                      ▼
-               Video Streaming
-                      │
-                      ▼
-             Human Detection (YOLO)
-                      │
-                      ▼
-          Object Tracking (ByteTrack)
-                      │
-                      ▼
-          Entry / Exit Detection
-                      │
-        ┌─────────────┴─────────────┐
-        ▼                           ▼
-   Activity Logging          Snapshot Capture
-        │                           │
-        └─────────────┬─────────────┘
-                      ▼
-             Notification Service
-         (WhatsApp / Telegram)
-                      │
-                      ▼
-            Monitoring Dashboard
-```
-
----
-
-# 🛠️ Tech Stack
-
-## Programming Language
-
-* Python
-
-## IDE
-
-* Visual Studio Code
-
-## Computer Vision
-
-* OpenCV
-* Ultralytics YOLO
-
-## Object Tracking
-
-* ByteTrack / BoT-SORT
-
-## Database
-
-* SQLite
-
-## Dashboard
-
-* Flask
-
-## Version Control
-
-* Git
-
-## Hardware
-
-* CCTV Camera
-* Windows PC
-
----
-
-# 📁 Project Structure
-
-```text
-HumanDetectionSystem/
-
+1. Struktur Proyek
+├── main.py                     # Program utama -- jalankan kamera & deteksi
+├── app_config.py                # Semua pengaturan (kamera, model, threshold, dll)
 │
-├── app/
-│   ├── detection/
-│   ├── tracking/
-│   ├── notification/
+├── app/                         # Logic inti sistem
+│   ├── detector/
+│   │   ├── detector.py          # Deteksi & tracking ORANG (YOLOv8 + ByteTrack)
+│   │   └── face_detector.py     # Deteksi WAJAH (YOLOv8-face)
+│   │
+│   ├── event/
+│   │   ├── line_counter.py      # Hitung MASUK/KELUAR berdasarkan garis virtual
+│   │   └── track_resolver.py    # Sambungkan track_id yang "putus" akibat oklusi
+│   │
+│   ├── recognition/
+│   │   ├── face_database.py     # Bangun database wajah dari folder photos/
+│   │   ├── face_matcher.py      # Cocokkan kotak wajah ke kotak badan orang
+│   │   ├── face_recognizer.py   # Bandingkan wajah ke database (FaceNet)
+│   │   └── track_registry.py    # Sistem "lock" identitas per track (voting)
+│   │
+│   ├── services/
+│   │   └── recognition_service.py  # Orkestrasi: deteksi wajah + lock + cache
+│   │
 │   ├── database/
-│   ├── dashboard/
-│   ├── utils/
+│   │   ├── database.py          # Koneksi SQLite + skema tabel
+│   │   └── attendance.py        # Simpan event MASUK/KELUAR ke database
+│   │
+│   ├── notification/
+│   │   ├── notification_manager.py  # Susun pesan notifikasi
+│   │   └── whatsapp_service.py      # Kirim WhatsApp lewat Fonnte API
+│   │
+│   ├── snapshot/
+│   │   └── snapshot_service.py  # Simpan foto snapshot tiap event
+│   │
+│   ├── tracker/
+│   │   └── tracker.py           # Wrapper tracking (dipakai detector.py)
+│   │
+│   └── utils/
+│       ├── status_writer.py     # Tulis heartbeat (system_status.json) untuk dashboard
+│       └── hud.py               # Gambar panel Person/Masuk/Keluar/FPS di window kamera
+│
+├── config/
+│   ├── bytetrack.yaml           # Parameter tracker ByteTrack (track_buffer dkk)
+│   └── settings.py              # (TIDAK ADA DI REPO, WAJIB DIBUAT SENDIRI -- lihat Bagian 3)
+│
+├── dashboard/                   # Aplikasi web (Streamlit)
+│   ├── dashboard_v2.py          # Entry point dashboard -- jalankan file ini
+│   │
+│   ├── views/                   # 1 file = 1 halaman
+│   │   ├── dashboard.py         # Halaman utama (4 kartu ringkasan + Live Activity)
+│   │   ├── live_activity.py     # Halaman Live Activity lengkap (dengan filter)
+│   │   └── audit_log.py         # Halaman Audit Log (tabel lengkap + export CSV)
+│   │
+│   ├── components/              # Potongan UI yang dipakai ulang antar halaman
+│   │   ├── sidebar.py           # Sidebar kiri (menu + System Status)
+│   │   ├── header.py            # Judul halaman + badge SYSTEM ONLINE
+│   │   ├── metrics.py           # 4 kartu (Occupancy, Entry, Exit, Unauthorized)
+│   │   ├── activity.py          # Kartu Live Activity (dipakai dashboard & live_activity)
+│   │   ├── footer.py            # Footer halaman
+│   │   └── audit/               # Komponen khusus halaman Audit Log
+│   │       ├── table.py         # Tabel + logic filter
+│   │       ├── filters.py       # Widget filter (search/tanggal/status/dll)
+│   │       ├── header.py        # Judul + tombol Export CSV
+│   │       └── detail.py        # Panel detail di kanan (saat baris dipilih)
+│   │
+│   ├── services/
+│   │   ├── database_service.py       # Semua query SQL ke database.db
+│   │   └── system_status_service.py  # Baca heartbeat dari main.py
+│   │
+│   └── assets/
+│       ├── style.css             # Semua styling dashboard
+│       └── logo_diskominfo.png   # Logo di sidebar
 │
 ├── models/
+│   ├── yolo/yolov8n.pt          # Model deteksi ORANG
+│   └── face/yolov8n-face.pt     # Model deteksi WAJAH
 │
-├── snapshots/
+├── photos/                      # Database wajah -- 1 folder per orang
+│   └── <nama>/foto1.jpg, foto2.jpg, ...
 │
-├── database/
-│
-├── docs/
-│
-├── testing/
-│
-├── main.py
-│
-├── requirements.txt
-│
-└── README.md
-```
+├── static/live.jpg              # Preview kamera terbaru (auto-update tiap 0.5 detik)
+├── database.db                  # Database SQLite (dibuat otomatis saat main.py pertama jalan)
+├── system_status.json           # Heartbeat main.py (dibuat otomatis, dibaca dashboard)
+└── requirements.txt
 
----
+2. Persiapan (sekali saja)
+a. Buat virtual environment & install dependency
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+requirements.txt bawaan repo ini belum lengkap -- tambahkan juga:
 
-# 🔄 Workflow
+pip install keras-facenet scipy streamlit-autorefresh
+keras-facenet + scipy -- dipakai face_recognizer.py untuk pengenalan wajah
+streamlit-autorefresh -- dipakai dashboard supaya angka ter-update sendiri tanpa refresh manual
 
-1. CCTV mengirimkan video ke sistem.
-2. YOLO mendeteksi manusia.
-3. Tracker memberikan ID pada setiap objek.
-4. Sistem menentukan aktivitas masuk atau keluar.
-5. Snapshot disimpan.
-6. Aktivitas dicatat ke database.
-7. Notifikasi dikirim melalui WhatsApp atau Telegram.
-8. Dashboard diperbarui secara otomatis.
+b. Download model YOLO (kalau folder models/ kosong atau file corrupt)
+python download_model.py
+Pastikan juga models/face/yolov8n-face.pt ada (model deteksi wajah) -- download manual dari sumber project kalau belum ada.
 
----
+c. Siapkan token WhatsApp (Fonnte)
+Buat file baru config/settings.py (file ini sengaja tidak ada di repo, berisi token rahasia):
 
-# 🔒 Security Considerations
+FONNTE_TOKEN = "ISI_TOKEN_DARI_AKUN_FONNTE_KAMU"
+WHATSAPP_TARGET = "62812xxxxxxxx"
+Token didapat dari dashboard fonnte.com setelah connect nomor WhatsApp sebagai device.
 
-Karena sistem dikembangkan untuk lingkungan **Divisi Persandian Diskominfo**, beberapa aspek keamanan menjadi perhatian utama:
+d. Siapkan database wajah
+Buat 1 folder per orang di photos/, isi 3-5 foto (variasi sudut/pencahayaan):
 
-* Penyimpanan log aktivitas.
-* Penyimpanan snapshot secara aman.
-* Pembatasan hak akses pengguna.
-* Audit trail seluruh aktivitas sistem.
-* Perlindungan data pribadi apabila Face Recognition diterapkan.
-* Desain sistem yang mudah dikembangkan dan dipelihara.
+photos/
+  aqil/
+    foto1.jpg
+    foto2.jpg
+    ...
+  raras/
+    foto1.jpg
+    foto2.jpg
+e. Cek kamera & posisi garis (kalau kamera baru/posisi berubah)
+python camera_test.py       # cari CAMERA_INDEX yang benar
+python door_cordinate.py    # klik di video buat cari koordinat garis pintu
+Update hasilnya di app_config.py (CAMERA_INDEX) dan app/event/line_counter.py (koordinat garis).
 
----
+3. Menjalankan Sistem
+Butuh 2 terminal terpisah, dua-duanya harus aktifkan venv dulu (.\.venv\Scripts\Activate.ps1).
 
-# 🚀 Roadmap
+Terminal 1 -- mesin deteksi (kamera, YOLO, face recognition):
 
-## Phase 1
+python main.py
+Tekan q di window kamera untuk berhenti dengan aman.
 
-* Human Detection
-* Human Tracking
-* Entry & Exit Detection
+Terminal 2 -- dashboard web:
 
-## Phase 2
+streamlit run dashboard/dashboard_v2.py
+Buka http://localhost:8501 di browser.
 
-* Database
-* Dashboard
-* Snapshot Logging
+Dashboard bisa dibuka meski main.py belum/tidak jalan -- semua panel status akan otomatis menunjukkan offline/0, bukan error.
 
-## Phase 3
+4. Konfigurasi Penting (app_config.py)
+Variabel	Kegunaan
+CAMERA_INDEX	Index kamera yang dipakai
+YOLO_MODEL	Path model deteksi orang
+CONFIDENCE	Ambang percaya diri deteksi orang (turunkan kalau bounding box sering hilang)
+FACE_MODEL	Path model deteksi wajah
+FACE_CONFIDENCE	Ambang percaya diri deteksi wajah
+FACE_LOCK_VOTES	Berapa kali nama yang sama harus muncul sebelum identitas dikunci
+FACE_VOTE_HISTORY	Dari berapa tebakan terakhir voting dihitung
+TRACKER	Path config ByteTrack (config/bytetrack.yaml)
 
-* WhatsApp Notification
-* Telegram Notification
+5. Fitur Utama
+Deteksi & tracking orang real-time dengan penomoran ID yang stabil, tahan terhadap oklusi singkat dan perubahan pose (duduk/berdiri).
+Pengenalan wajah dengan sistem voting (toleran ke kesalahan baca sesekali) dan lock permanen begitu identitas cukup yakin.
+Hitung MASUK/KELUAR otomatis lewat garis virtual, dengan mekanisme anti-dobel-hitung saat ID tracking berubah.
+Notifikasi WhatsApp otomatis tiap ada event masuk/keluar, dengan status kirim yang dilaporkan balik ke dashboard.
+Dashboard real-time: ringkasan okupansi live, riwayat aktivitas dengan foto, audit log lengkap dengan filter & export CSV, dan status kesehatan sistem (YOLO/Face Recognition/Database/WhatsApp) berbasis heartbeat dari main.py.
 
-## Phase 4
-
-* Face Recognition
-* Visitor Analytics
-* Multi-Camera Support
-
----
-
-# 👥 Development Team
-
-| Nama                   | Posisi                                | Tanggung Jawab                                                                                                     |
-| ---------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| **Khalisa Nur Safira** | Project Manager & System Analyst      | Mengelola proyek, analisis kebutuhan, desain sistem, koordinasi tim, dokumentasi, dan integrasi sistem.            |
-| **Dayinta Raras Apsari**     | AI & Computer Vision Engineer         | Mengembangkan Human Detection, Object Tracking, Face Recognition (opsional), serta optimasi model AI.              |
-| **Aqilah Akma**     | Backend & System Integration Engineer | Mengembangkan database, dashboard monitoring, integrasi CCTV, notifikasi WhatsApp/Telegram, dan deployment sistem. |
-
-**Institution**
-
-* Universitas Brawijaya
-* Program Studi Teknik Komputer
-* Praktik Kerja Lapangan (PKL)
-* Dinas Komunikasi dan Informatika (Diskominfo)
-* Divisi Persandian
-
----
-
-### 👨‍💻 Role Description
-
-**Project Manager & System Analyst**
-
-* Menyusun requirement sistem.
-* Menyusun timeline dan pembagian tugas.
-* Mendesain arsitektur sistem.
-* Mengoordinasikan pengembangan proyek.
-* Menyusun dokumentasi teknis dan laporan PKL.
-
-**AI & Computer Vision Engineer**
-
-* Implementasi Human Detection menggunakan YOLO.
-* Implementasi Object Tracking.
-* Pengembangan Entry & Exit Detection.
-* Pengembangan Face Recognition (opsional).
-* Pengujian performa model AI.
-
-**Backend & System Integration Engineer**
-
-* Mendesain database.
-* Mengembangkan Dashboard Monitoring.
-* Mengintegrasikan CCTV dengan sistem.
-* Mengembangkan modul notifikasi WhatsApp/Telegram.
-* Melakukan integrasi seluruh komponen sistem.
-
----
-
-# 📌 Status Project
-
-🚧 **In Development**
-
-Project ini sedang dikembangkan sebagai bagian dari kegiatan Praktik Kerja Lapangan (PKL) dan akan terus disempurnakan sesuai kebutuhan implementasi di lingkungan Diskominfo.
+6. Catatan Pemeliharaan
+File system_status.json dan static/live.jpg dibuat otomatis oleh main.py saat berjalan -- aman dihapus manual, akan dibuat ulang otomatis.
+database.db dibuat otomatis oleh Database() di app/database/database.py, termasuk migrasi skema (menambah kolom baru) kalau ada perubahan struktur tabel.
+Kalau menambah/mengurangi foto di photos/, database wajah akan otomatis dibangun ulang setiap main.py start -- tidak perlu langkah tambahan.
