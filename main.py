@@ -17,10 +17,6 @@ from app.notification.notification_manager import NotificationManager
 from app.utils.status_writer import write_status
 from app.utils.hud import draw_hud
 
-# from app.recognition.face_database import FaceDatabase
-# from app.recognition.face_recognizer import FaceRecognizer
-# from app.recognition.track_registry import TrackRegistry
-
 from app_config import *
 
 
@@ -29,10 +25,6 @@ def main():
     print("====================================")
     print(" Human Monitoring System")
     print("====================================")
-
-    # ==========================================
-    # INIT MODULE
-    # ==========================================
 
     detector = PersonDetector(YOLO_MODEL)
     tracker = PersonTracker(detector)
@@ -60,17 +52,6 @@ def main():
         locked_max_age=4.0,
     )
 
-    # face_recognizer = FaceRecognizer()
-
-    # face_database = FaceDatabase(
-    #     "photos",
-    #     face_recognizer.model
-    # )
-
-    # known_faces = face_database.build()
-
-    # track_registry = TrackRegistry()
-
     detector.open_camera(CAMERA_INDEX)
 
     # semua modul berhasil di-init -> laporkan status awal ke dashboard
@@ -78,19 +59,15 @@ def main():
         yolo_engine=True,
         face_recognition=True,
         whatsapp=True,
+        person_count=0,
     )
 
     # supaya tidak error ketika frame pertama kosong
     current_side = 0
 
-    # status koneksi WhatsApp yang SEBENARNYA (bukan hardcode True terus),
-    # di-update tiap ada event terkirim, dilaporkan ke dashboard lewat
-    # write_status() di bawah.
     last_whatsapp_ok = True
 
-    # ==========================================
     # MAIN LOOP
-    # ==========================================
     prev_time = time.time()
 
     last_preview_save = 0
@@ -112,11 +89,6 @@ def main():
         )
 
         person_count = 0
-
-        # ==================================
-        # LANGKAH A: kumpulkan SEMUA orang di frame ini dulu, baru
-        # sambungkan track_id yang putus SEKALIGUS (bukan satu-satu).
-        # ==================================
 
         raw_detections = []  # (track_id, box, conf)
         positions_for_resolver = []  # (track_id, box_center)
@@ -146,17 +118,6 @@ def main():
                 positions_for_resolver.append((track_id, box_center))
 
         id_map = track_resolver.resolve_frame(positions_for_resolver)
-
-        # ==================================
-        # LANGKAH A.5: CEGAH 1 NAMA DIPEGANG 2 TRACK SEKALIGUS
-        # ==================================
-        # Bisa kejadian gara-gara track_resolver salah "mengadopsi"
-        # identitas locked ke orang yang berbeda (misal 2 orang jalan
-        # berdekatan). Kalau ini dibiarkan, 1 nama bisa nempel di 2
-        # bounding box bersamaan -- padahal secara logika itu mustahil.
-        # Yang confidence-nya lebih jelek di-reset paksa (registry.remove),
-        # supaya dia mulai dari nol lagi (voting ulang), bukan menyamar
-        # jadi nama orang lain.
 
         stable_ids_this_frame = set(id_map.values())
 
@@ -193,10 +154,6 @@ def main():
 
                         recognition_service.registry.remove(sid)
 
-        # ==================================
-        # LANGKAH B: proses tiap orang seperti biasa, pakai stable_id
-        # ==================================
-
         for track_id, box, conf in raw_detections:
 
                 x1, y1, x2, y2 = map(int, box)
@@ -218,10 +175,7 @@ def main():
                     stable_id
                 )
 
-                # ==================================
                 # LINE COUNTER
-                # ==================================
-
                 current_side = line_counter.get_side(
                     (foot_x, foot_y)
                 )
@@ -289,10 +243,7 @@ def main():
 
                 person_count += 1
 
-                # ==================================
                 # DRAW BOX
-                # ==================================
-
                 cv2.rectangle(
                     frame,
                     (x1, y1),
@@ -311,10 +262,7 @@ def main():
                     2
                 )
 
-        # ==========================================
         # LINE
-        # ==========================================
-
         cv2.line(
             frame,
             line_counter.line_p1,
@@ -327,10 +275,7 @@ def main():
         fps = 1 / (current_time - prev_time)
         prev_time = current_time
 
-        # ==========================================
         # HUD (panel Person/Masuk/Keluar/FPS)
-        # ==========================================
-
         draw_hud(
             frame,
             person_count,
@@ -339,23 +284,16 @@ def main():
             fps
         )
 
-        # ==========================================
-        # HEARTBEAT
-        # ==========================================
-
         if time.time() - last_status_write > 3:
 
             write_status(
                 yolo_engine=True,
                 face_recognition=True,
                 whatsapp=last_whatsapp_ok,
+                person_count=person_count,
             )
 
             last_status_write = time.time()
-
-        # ==========================================
-        # LIVE PREVIEW
-        # ==========================================
 
         if time.time() - last_preview_save > 0.5:
 

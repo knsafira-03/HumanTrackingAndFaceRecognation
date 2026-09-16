@@ -1,6 +1,8 @@
 import streamlit as st
 from pathlib import Path
 
+from streamlit_autorefresh import st_autorefresh
+
 from components.sidebar import render_sidebar
 
 st.set_page_config(
@@ -21,6 +23,8 @@ with open(BASE_DIR / "assets" / "style.css", encoding="utf-8") as f:
         f"<style>{f.read()}</style>",
         unsafe_allow_html=True,
     )
+
+st_autorefresh(interval=3000, key="dashboard_autorefresh")
 
 render_sidebar()
 

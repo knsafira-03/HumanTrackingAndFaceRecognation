@@ -1,10 +1,23 @@
 import streamlit as st
 from services.database_service import DatabaseService
+from services.system_status_service import read_heartbeat
 
 def render_metrics():
     db = DatabaseService()
     metrics = db.get_metrics()
     unauthorized = db.get_unauthorized_count()
+
+    # Current Occupancy = jumlah orang yang KAMERA lihat SAAT INI
+    # (live, dari main.py), BUKAN hitungan historis MASUK-KELUAR hari
+    # ini. Kalau main.py tidak terdeteksi jalan (heartbeat basi/mati,
+    # misal kamera baru dimatikan), otomatis 0 -- karena memang tidak
+    # ada yang sedang dipantau.
+    heartbeat = read_heartbeat()
+
+    if heartbeat and heartbeat.get("is_alive"):
+        occupancy = heartbeat.get("person_count", 0)
+    else:
+        occupancy = 0
 
     c1, c2, c3, c4 = st.columns(4)
 
@@ -14,7 +27,7 @@ def render_metrics():
     c1,
     "👥",
     "Current Occupancy",
-    metrics["occupancy"],
+    occupancy,
     "People Inside",
     "#0EA5E9"
     ),

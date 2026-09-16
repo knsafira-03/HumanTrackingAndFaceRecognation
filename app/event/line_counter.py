@@ -9,8 +9,8 @@ class LineCounter:
         # GARIS PEMBATAS
         # ======================================
 
-        self.line_p1 = (327, 308)
-        self.line_p2 = (467, 311)
+        self.line_p1 = (232, 309)
+        self.line_p2 = (372, 305)
 
         # ======================================
         # TOLERANSI GARIS
