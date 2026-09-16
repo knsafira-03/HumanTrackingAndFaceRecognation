@@ -7,7 +7,7 @@ from components.sidebar import render_sidebar
 
 st.set_page_config(
     page_title="Smart Server Room Monitoring",
-    page_icon="🛡️",
+    page_icon="dashboard/assets/diskominfo_no_bg.png",
     layout="wide",
     initial_sidebar_state="expanded",
 )

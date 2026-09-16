@@ -1,34 +1,85 @@
+# ===================================
 # Virtual Environment
+# ===================================
 .venv/
+venv/
+env/
+.env
 
+# ===================================
 # Python
+# ===================================
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
 
-# VSCode
+# ===================================
+# Editor
+# ===================================
 .vscode/
+.idea/
 
+# ===================================
+# Kredensial (JANGAN PERNAH commit token/password)
+# ===================================
+config/settings.py
+
+# ===================================
 # Database
+# ===================================
 *.db
 *.sqlite3
 
-# Logs
+# ===================================
+# Dataset wajah -- data pribadi, jangan ikut ke-commit
+# ===================================
+# Struktur folder tetap ter-track lewat .gitkeep, tapi ISI foto asli
+# TIDAK. Setiap orang yang clone repo menyiapkan foto wajahnya sendiri
+# secara lokal di photos/<nama>/. Penting khususnya karena proyek ini
+# untuk lingkungan Divisi Persandian.
+photos/*
+!photos/.gitkeep
+!photos/*/.gitkeep
+
+# ===================================
+# Cache & artefak yang di-generate otomatis oleh main.py
+# ===================================
+embeddings.pkl
+system_status.json
+static/*.jpg
+static/*.jpeg
+static/*.png
+snapshots/
+recordings/
+
+# ===================================
+# Model YOLO (opsional untuk di-ignore)
+# ===================================
+# Dibiarkan TIDAK di-ignore untuk sekarang, karena model deteksi wajah
+# (yolov8n-face.pt) belum ada script download otomatisnya (lihat README
+# Bagian 2b) -- kalau di-gitignore, orang yang clone baru gak akan punya
+# file ini sama sekali. Kalau nanti ukuran repo jadi masalah, pindahkan
+# model ke Git LFS atau storage terpisah, baru uncomment baris di bawah:
+# models/*.pt
+# models/**/*.pt
+
+# ===================================
+# Export & log
+# ===================================
+attendance*.csv
+*.log
 logs/
 
-# Snapshots
-snapshots/
-
-# Dataset
-datasets/videos/
-
+# ===================================
 # OS
-Thumbs.db
+# ===================================
 .DS_Store
+Thumbs.db
 
-# Attendance
-attendance*.csv
-
-# Python Environment
-.env
-
-config/settings.py
+# ===================================
+# Ultralytics runtime cache
+# ===================================
+runs/
+*.cache

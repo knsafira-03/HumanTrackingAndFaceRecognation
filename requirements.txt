@@ -1,9 +1,22 @@
+# Computer Vision & Object Tracking
 opencv-python
 numpy
 ultralytics
 torch
 torchvision
+lap
+
+# Face Recognition
+keras-facenet
+scipy
+
+# Notifikasi WhatsApp
+requests
+
+# Dashboard
 streamlit
+streamlit-autorefresh
+
 plotly
 pandas
 altair
