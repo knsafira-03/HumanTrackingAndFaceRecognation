@@ -1,8 +1,6 @@
 import streamlit as st
 from pathlib import Path
 
-from streamlit_autorefresh import st_autorefresh
-
 from components.sidebar import render_sidebar
 
 st.set_page_config(
@@ -14,6 +12,7 @@ st.set_page_config(
 
 from views.dashboard import render_dashboard
 from views.audit_log import render_audit_log
+from views.live_activity import render_live_activity
 
 BASE_DIR = Path(__file__).parent
 
@@ -22,11 +21,6 @@ with open(BASE_DIR / "assets" / "style.css", encoding="utf-8") as f:
         f"<style>{f.read()}</style>",
         unsafe_allow_html=True,
     )
-
-# Rerun otomatis tiap 3 detik -- SYSTEM STATUS di sidebar jadi ikut
-# ter-update sendiri tanpa perlu refresh manual (3 detik dipilih karena
-# main.py juga nulis heartbeat tiap 3 detik, lihat status_writer.py).
-st_autorefresh(interval=3000, key="status_autorefresh")
 
 render_sidebar()
 
@@ -37,3 +31,6 @@ if page == "dashboard":
 
 elif page == "audit":
     render_audit_log()
+
+elif page == "live_activity":
+    render_live_activity()

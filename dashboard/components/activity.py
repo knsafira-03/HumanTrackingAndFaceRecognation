@@ -81,6 +81,7 @@ def render_activity_card(row, base_dir):
 def render_activity():
 
     db = DatabaseService()
+
     rows = db.get_recent_activity(6)
 
     BASE_DIR = Path(__file__).resolve().parents[2]
@@ -91,12 +92,13 @@ def render_activity():
         st.markdown("## 📸 Live Activity")
 
     with header_right:
+
         if st.button(
             "View All →",
             key="activity_view_all",
             use_container_width=True,
         ):
-            st.session_state.page = "audit"
+            st.session_state.page = "live_activity"
             st.rerun()
 
     st.caption(f"Showing latest {len(rows)} activities")

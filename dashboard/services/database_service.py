@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+from datetime import datetime
 
 
 class DatabaseService:
@@ -57,35 +58,43 @@ class DatabaseService:
     # =====================================
 
     def get_metrics(self):
+        """
+        DIHITUNG LANGSUNG dari tabel attendance, difilter ke tanggal HARI
+        INI saja -- bukan dari room_occupancy.total_in_today/total_out_today
+        yang ternyata tidak pernah di-reset harian (terus menumpuk sejak
+        database dibuat, itu sebabnya angkanya bisa aneh/tidak masuk akal
+        seperti Exit lebih besar dari Entry).
+        """
 
-        row = self.execute_one("""
-            SELECT
-                current_occupancy,
-                total_in_today,
-                total_out_today
-            FROM room_occupancy
-            WHERE id = 1
-        """)
+        today = datetime.now().strftime("%Y-%m-%d")
 
-        if row:
+        row_in = self.execute_one("""
+            SELECT COUNT(*)
+            FROM attendance
+            WHERE direction = 'MASUK'
+              AND substr(timestamp, 1, 10) = ?
+        """, (today,))
 
-            return {
+        row_out = self.execute_one("""
+            SELECT COUNT(*)
+            FROM attendance
+            WHERE direction = 'KELUAR'
+              AND substr(timestamp, 1, 10) = ?
+        """, (today,))
 
-                "occupancy": row[0],
+        entrance = row_in[0] if row_in else 0
+        exit_count = row_out[0] if row_out else 0
 
-                "entrance": row[1],
-
-                "exit": row[2]
-
-            }
+        # Occupancy = entry - exit HARI INI, tidak pernah minus
+        occupancy = max(entrance - exit_count, 0)
 
         return {
 
-            "occupancy": 0,
+            "occupancy": occupancy,
 
-            "entrance": 0,
+            "entrance": entrance,
 
-            "exit": 0
+            "exit": exit_count
 
         }
 
@@ -94,28 +103,21 @@ class DatabaseService:
     # =====================================
 
     def get_unauthorized_count(self):
+        """
+        Sama seperti get_metrics() -- difilter ke HARI INI saja, supaya
+        konsisten dengan 3 kartu lain yang juga "Today's ...".
+        """
+
+        today = datetime.now().strftime("%Y-%m-%d")
 
         row = self.execute_one("""
             SELECT COUNT(*)
             FROM attendance
-            WHERE status='UNAUTHORIZED'
-        """)
+            WHERE status = 'UNAUTHORIZED'
+              AND substr(timestamp, 1, 10) = ?
+        """, (today,))
 
-        return row[0]
-
-    # =====================================
-    # ALL LOGS
-    # =====================================
-
-    def get_logs(self):
-
-        return self.execute("""
-            SELECT *
-
-            FROM attendance
-
-            ORDER BY id DESC
-        """)
+        return row[0] if row else 0
 
     # =====================================
     # DISTINCT USERS (dropdown filter "All Users" di Audit Log)
@@ -131,6 +133,100 @@ class DatabaseService:
         """)
 
         return [row[0] for row in rows]
+
+    # =====================================
+    # ACTIVITY FEED (dengan filter, dipakai halaman Live Activity)
+    # =====================================
+
+    def get_activity_feed(self, limit=20, status=None, direction=None):
+        """
+        Ambil feed aktivitas dengan filter opsional, dipakai halaman
+        Live Activity. status/direction bernilai "All" (atau None)
+        berarti tidak difilter.
+        """
+
+        query = """
+            SELECT
+                timestamp,
+                track_id,
+                name,
+                status,
+                direction,
+                snapshot_path
+            FROM attendance
+        """
+
+        conditions = []
+        params = []
+
+        if status and status != "All":
+            conditions.append("status = ?")
+            params.append(status)
+
+        if direction and direction != "All":
+            conditions.append("direction = ?")
+            params.append(direction)
+
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+
+        query += " ORDER BY id DESC LIMIT ?"
+        params.append(limit)
+
+        return self.execute(query, tuple(params))
+
+    # =====================================
+    # RECENT ACTIVITY
+    # =====================================
+
+    def get_recent_activity(self, limit=6):
+        """
+        limit=None -> dipakai saat tombol "View All" ditekan (di
+        activity.py ini akan dipanggil dengan limit=25, bukan None,
+        supaya daftarnya tidak kepanjangan). limit=angka -> ambil
+        sejumlah itu saja (default 6, dipakai saat tampilan normal).
+        """
+
+        if limit is None:
+
+            return self.execute("""
+                SELECT
+                    timestamp,
+                    track_id,
+                    name,
+                    status,
+                    direction,
+                    snapshot_path
+                FROM attendance
+                ORDER BY id DESC
+            """)
+
+        return self.execute("""
+            SELECT
+                timestamp,
+                track_id,
+                name,
+                status,
+                direction,
+                snapshot_path
+            FROM attendance
+            ORDER BY id DESC
+            LIMIT ?
+        """, (limit,))
+
+    # =====================================
+    # ALL LOGS
+    # =====================================
+
+    def get_logs(self):
+
+        return self.execute("""
+            SELECT *
+
+            FROM attendance
+
+            ORDER BY id DESC
+        """)
 
     # =====================================
     # DIRECTION CHART
@@ -167,20 +263,3 @@ class DatabaseService:
 
             GROUP BY status
         """)
-
-    def get_recent_activity(self, limit=10):
-
-        query = """
-        SELECT
-            timestamp,
-            track_id,
-            name,
-            status,
-            direction,
-            snapshot_path
-        FROM attendance
-        ORDER BY id DESC
-        LIMIT ?
-        """
-
-        return self.execute(query, (limit,))

@@ -925,3 +925,30 @@ SYSTEM STATUS BADGE (header)
 .system-status-offline .system-status-dot{
     background:#EF4444;
 }
+
+
+/* ==========================================
+SIDEBAR NAV -- ACTIVE STATE
+========================================== */
+
+[data-testid="stSidebar"] button[kind="primary"]{
+
+    background:var(--primary) !important;
+
+    color:white !important;
+
+    font-weight:700;
+
+    border:none !important;
+
+    border-radius:12px;
+}
+
+[data-testid="stSidebar"] button[kind="primary"]:hover{
+
+    background:var(--primary) !important;
+
+    color:white !important;
+
+    transform:none;
+}

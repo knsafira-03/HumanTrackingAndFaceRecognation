@@ -52,14 +52,31 @@ def render_sidebar():
         if "page" not in st.session_state:
             st.session_state.page = "dashboard"
 
-        if st.button("Dashboard", use_container_width=True):
-            st.session_state.page = "dashboard"
+        current_page = st.session_state.page
 
-        if st.button("Live Activity", use_container_width=True):
+        if st.button(
+            "Dashboard",
+            use_container_width=True,
+            type="primary" if current_page == "dashboard" else "secondary",
+        ):
             st.session_state.page = "dashboard"
+            st.rerun()
 
-        if st.button("Audit Log", use_container_width=True):
+        if st.button(
+            "Live Activity",
+            use_container_width=True,
+            type="primary" if current_page == "live_activity" else "secondary",
+        ):
+            st.session_state.page = "live_activity"
+            st.rerun()
+
+        if st.button(
+            "Audit Log",
+            use_container_width=True,
+            type="primary" if current_page == "audit" else "secondary",
+        ):
             st.session_state.page = "audit"
+            st.rerun()
 
         st.markdown("---")
 
